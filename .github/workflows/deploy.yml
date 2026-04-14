@@ -24,3 +24,4 @@ jobs:
           projectName: digo
           directory: .
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: '3'
