@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2주차 — 고객의 회사를 읽는 법 | AX First Step</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #E8611A;
+      --orange-light: #F28C28;
+      --dark: #111118;
+      --text: #1E1E2E;
+      --text-muted: #64748B;
+      --bg: #0F0F1A;
+      --surface: #1A1A2E;
+      --surface2: #222235;
+      --border: rgba(255,255,255,0.1);
+      --green: #68B82E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #fff;
+    }
+
+    /* ===== SLIDE ENGINE ===== */
+    .deck {
+      width: 100%; height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--orange);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 24px; right: 32px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== WEEK BADGE ===== */
+    .week-badge {
+      position: fixed;
+      top: 20px; left: 32px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ===== COMMON SLIDE ELEMENTS ===== */
+    .slide-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .slide h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .slide h1 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .slide h2 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide p.lead {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      line-height: 1.8;
+      margin-top: 20px;
+      max-width: 680px;
+    }
+
+    .sub-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== BIG NUMBER ===== */
+    .big-stat {
+      display: flex;
+      gap: 48px;
+      margin-top: 40px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 8px;
+    }
+
+    /* ===== TWO COL ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    /* ===== LIST SLIDE ===== */
+    .point-list {
+      list-style: none;
+      margin-top: 32px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .point-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .point-list li:last-child { border-bottom: none; }
+
+    .point-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(232,97,26,0.15);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ===== HIGHLIGHT BOX ===== */
+    .hl-box {
+      background: linear-gradient(135deg, rgba(232,97,26,0.15), rgba(242,140,40,0.08));
+      border: 1px solid rgba(232,97,26,0.3);
+      border-radius: 20px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 760px;
+      margin-top: 32px;
+    }
+
+    .hl-box .hl-main {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .hl-box .hl-main em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .hl-box .hl-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 16px;
+      line-height: 1.8;
+    }
+
+    /* ===== LADDER ===== */
+    .ladder {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 36px;
+    }
+
+    .ladder-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .ladder-step.active-step {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+
+    .ladder-arrow {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.25);
+      padding: 0 12px;
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: #0D0D1A;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 28px 36px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      max-width: 680px;
+      margin-top: 28px;
+      width: 100%;
+    }
+
+    .code-line { display: block; }
+    .code-prompt { color: rgba(255,255,255,0.25); margin-right: 8px; }
+    .code-human { color: #68B82E; }
+    .code-ai { color: var(--orange-light); }
+    .code-comment { color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+
+    /* ===== COVER SLIDE ===== */
+    .cover-bg {
+      background: radial-gradient(ellipse at 30% 50%, rgba(232,97,26,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(104,184,46,0.08) 0%, transparent 50%);
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      background: linear-gradient(135deg, #1A1A2E 0%, #111118 100%);
+    }
+
+    .section-divider .big-label {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ===== TIME BADGE ===== */
+    .time-badges {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .time-badge {
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .time-badge.lecture {
+      background: rgba(232,97,26,0.2);
+      color: var(--orange-light);
+      border: 1px solid rgba(232,97,26,0.3);
+    }
+    .time-badge.practice {
+      background: rgba(104,184,46,0.15);
+      color: #8ED452;
+      border: 1px solid rgba(104,184,46,0.25);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-box {
+      max-width: 700px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .quote-mark {
+      font-size: 4rem;
+      color: var(--orange);
+      line-height: 0.8;
+      font-family: 'Inter', sans-serif;
+      opacity: 0.4;
+    }
+    .quote-text {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .quote-source {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 16px;
+    }
+
+    /* ===== HOMEWORK ===== */
+    .hw-list {
+      list-style: none;
+      max-width: 640px;
+      width: 100%;
+      margin-top: 32px;
+    }
+    .hw-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .hw-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .hw-text strong {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .hw-text span {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-top: 40px;
+      max-width: 900px;
+      width: 100%;
+    }
+    .timeline-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .timeline-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      right: -1px;
+      width: 2px;
+      height: 36px;
+      background: var(--border);
+    }
+    .timeline-era {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(232,97,26,0.15);
+      border-radius: 100px;
+      padding: 4px 12px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .timeline-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .timeline-desc {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.6;
+      padding: 0 8px;
+    }
+
+    /* ===== FOUR COL ===== */
+    .four-col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 960px;
+      margin-top: 32px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 700px) {
+      .slide { padding: 40px 28px; }
+      .two-col { grid-template-columns: 1fr; gap: 16px; }
+      .four-col { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .ladder { flex-direction: column; gap: 8px; }
+      .ladder-arrow { transform: rotate(90deg); }
+      .big-stat { gap: 28px; }
+      .timeline { flex-direction: column; gap: 16px; }
+      .timeline-item::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="week-badge">AX First Step · 2주차</div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-hint">← → 키 또는 클릭으로 이동</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide cover-bg active" data-slide="1">
+    <div class="slide-tag">AX First Step · Week 2</div>
+    <h1>고객의 회사를<br><em>읽는 법</em></h1>
+    <p class="lead">나의 AX가 아닙니다.<br>고객의 AX를 이해하는 것이 컨설턴트의 시작입니다.</p>
+    <div class="time-badges">
+      <span class="time-badge lecture">강의 3시간</span>
+      <span class="time-badge practice">실습 2시간</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 처음 들어갔을 때 -->
+  <div class="slide" data-slide="2">
+    <div class="slide-tag">첫인상</div>
+    <h2>고객사에 <em>처음 들어갔을 때</em><br>무엇을 봐야 하는가</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">🖥️</div>
+        <h3>전산 환경 = 업무 환경</h3>
+        <p>직원들이 매일 쓰는 화면, 도구, 프로세스가 곧 그 회사의 업무 방식이다. 시스템을 보면 회사가 보인다.</p>
+      </div>
+      <div class="card" style="border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">🔍</div>
+        <h3>가장 먼저 물어볼 것</h3>
+        <p>"어떤 프로그램 쓰세요?" — 이 한 마디로 회사의 디지털 성숙도와 자동화 가능성이 보이기 시작한다.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">전산 환경은 단순한 IT 이야기가 아닙니다.<br><strong style="color:#fff;">회사가 일하는 방식 그 자체</strong>입니다.</p>
+  </div>
+
+  <!-- SLIDE 3: 시스템 4종 -->
+  <div class="slide" data-slide="3">
+    <div class="slide-tag">시스템 분류</div>
+    <h2>회사가 쓰는<br><em>시스템 4종</em></h2>
+    <div class="four-col" style="margin-top:36px;">
+      <div class="card" style="padding:24px 20px;">
+        <div class="card-icon">📊</div>
+        <h3>MIS</h3>
+        <p style="font-size:0.82rem;">일반 관리 시스템.<br>인사, 회계, 재고 등 회사 어디서나 쓰는 기능.</p>
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--orange-light);">Management Info</div>
+      </div>
+      <div class="card" style="padding:24px 20px;">
+        <div class="card-icon">🏭</div>
+        <h3>BIS</h3>
+        <p style="font-size:0.82rem;">회사 고유 업무 시스템.<br>그 회사만의 특수한 프로세스를 다루는 시스템.</p>
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--orange-light);">Business Info</div>
+      </div>
+      <div class="card" style="padding:24px 20px; border-color:rgba(232,97,26,0.35); background:rgba(232,97,26,0.05);">
+        <div class="card-icon">🔗</div>
+        <h3>ERP</h3>
+        <p style="font-size:0.82rem;">통합 시스템.<br>MIS + BIS를 하나로 묶어 데이터를 연결.</p>
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--orange-light);">통합 플랫폼</div>
+      </div>
+      <div class="card" style="padding:24px 20px;">
+        <div class="card-icon">📋</div>
+        <h3>그룹웨어</h3>
+        <p style="font-size:0.82rem;">의사결정·문서 시스템.<br>결재, 공지, 게시판, 전자문서 등 협업 도구.</p>
+        <div style="margin-top:12px; font-size:0.75rem; color:var(--orange-light);">협업·문서</div>
+      </div>
+    </div>
+    <p class="sub-label" style="margin-top:20px;">한 회사가 이 중 몇 가지를 쓰고, 어떻게 연결하느냐가 그 회사의 디지털 수준을 말해준다</p>
+  </div>
+
+  <!-- SLIDE 4: 냉장고 따로 식기세척기 따로 -->
+  <div class="slide" data-slide="4">
+    <div class="slide-tag">조합의 논리</div>
+    <h2>냉장고 따로,<br>식기세척기 따로</h2>
+    <div class="hl-box" style="margin-top:36px; max-width:800px;">
+      <div class="hl-main">
+        주방 가전은 모두 하나의 회사 제품일 필요가 없습니다.<br>
+        <em>필요에 따라 골라서 조합</em>하면 됩니다.
+      </div>
+      <div class="hl-sub" style="margin-top:20px;">
+        회사 시스템도 마찬가지입니다.<br>
+        회계는 A, 인사는 B, 문서는 C — 각각 가장 잘하는 걸로 조합합니다.<br>
+        어디서 어떻게 연결할지를 아는 것이 컨설턴트의 능력입니다.
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">"왜 이 시스템을 쓰세요?" 라고 물어보면<br><strong style="color:#fff;">그 회사의 역사가 나옵니다.</strong></p>
+  </div>
+
+  <!-- SLIDE 5: 역사 타임라인 -->
+  <div class="slide" data-slide="5">
+    <div class="slide-tag">역사</div>
+    <h2>시스템 진화의<br><em>역사 타임라인</em></h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-era">1970s</div>
+        <div class="timeline-title">MRP</div>
+        <div class="timeline-desc">자재소요계획.<br>공장 제조업 중심의 재고·생산 관리.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-era">1990s</div>
+        <div class="timeline-title">단독 시스템</div>
+        <div class="timeline-desc">부서별로 각자<br>프로그램 도입.<br>연결 없이 섬처럼 존재.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-era">2000s</div>
+        <div class="timeline-title">ERP</div>
+        <div class="timeline-desc">통합의 시대.<br>SAP, Oracle 등<br>대형 통합 패키지.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-era">2020s</div>
+        <div class="timeline-title">SaaS 조합</div>
+        <div class="timeline-desc">클라우드 기반<br>베스트오브브리드.<br>API로 연결.</div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:32px;">역사는 반복됩니다 — <em style="color:var(--orange); font-style:normal;">통합 → 분산 → 통합 → 분산</em><br>지금은 분산(SaaS 조합)의 시대입니다.</p>
+  </div>
+
+  <!-- SLIDE 6: 지금도 천차만별 -->
+  <div class="slide" data-slide="6">
+    <div class="slide-tag">현실</div>
+    <h2>지금도<br><em>천차만별</em>입니다</h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">레벨 1</span>
+        <span><strong style="color:#fff;">회계 소프트웨어만</strong> 쓰는 곳 — 나머지는 전부 엑셀과 종이</span>
+      </li>
+      <li>
+        <span class="point-num">레벨 2</span>
+        <span><strong style="color:#fff;">SAP · Oracle ERP</strong>를 쓰는 곳 — 대기업, 그러나 레거시가 깊다</span>
+      </li>
+      <li>
+        <span class="point-num">레벨 3</span>
+        <span><strong style="color:#fff;">SaaS 조합</strong>으로 쓰는 곳 — 노션 + 슬랙 + 구글워크스페이스 + 특화 SaaS</span>
+      </li>
+    </ul>
+    <div class="hl-box" style="margin-top:28px; padding:24px 36px; max-width:700px;">
+      <div class="hl-main" style="font-size:1.1rem;">
+        레벨이 높다고 AX 대상이 아닌 게 아닙니다.<br>
+        <em>어느 레벨이든 자동화할 수 있는 문서와 프로세스가 있습니다.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: 핵심 — 문서다 (임팩트) -->
+  <div class="slide cover-bg" data-slide="7">
+    <div class="slide-tag">핵심</div>
+    <h1 style="font-size:clamp(2.8rem,6vw,5rem); line-height:1.2;">
+      이 모든 걸<br>관통하는 건
+    </h1>
+    <h1 style="font-size:clamp(3.5rem,8vw,7rem); margin-top:16px; color:var(--orange);">
+      문서다
+    </h1>
+    <p class="lead" style="margin-top:32px; font-size:clamp(1.05rem,2vw,1.3rem);">
+      MIS든, ERP든, 그룹웨어든 —<br>
+      모든 시스템의 입력과 출력은 <strong style="color:#fff;">문서</strong>입니다.<br>
+      문서를 바꾸면 시스템이 바뀝니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 8: 사다리 (HTML 강조) -->
+  <div class="slide" data-slide="8">
+    <div class="slide-tag">4주 전체 흐름</div>
+    <h2>이 강의를 관통하는<br><em>하나의 논리</em></h2>
+    <div class="ladder" style="margin-top:44px;">
+      <div class="ladder-step">📄 문서</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step active-step">🌐 HTML</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">⚙️ 시스템</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">☁️ SaaS</div>
+    </div>
+    <p class="lead" style="margin-top:32px;">
+      이번 주는 두 번째 계단 — <strong style="color:var(--orange);">문서를 HTML로 만드는 힘</strong><br>
+      모든 시스템은 HTML에서 시작했습니다.
+    </p>
+    <div class="hl-box" style="margin-top:24px; padding:20px 32px; max-width:680px;">
+      <div class="hl-main" style="font-size:1rem; color:rgba(255,255,255,0.7);">
+        문서 → <em>HTML</em> → 시스템 → SaaS<br>
+        <span style="font-size:0.85rem; color:rgba(255,255,255,0.4); font-weight:400;">1주차에서 만든 페이지가 바로 이 사다리 위에 있습니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: AX의 첫 번째 스텝은 문서 -->
+  <div class="slide" data-slide="9">
+    <div class="slide-tag">AX 시작점</div>
+    <h2>AX의 첫 번째 스텝은<br><em>문서</em>입니다</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">🚧</div>
+        <h3>어려운 시작</h3>
+        <p>시스템 도입, 프로세스 재설계, 데이터 마이그레이션 — 비용도 크고, 리스크도 크다.</p>
+      </div>
+      <div class="card" style="border-color:rgba(104,184,46,0.4); background:rgba(104,184,46,0.06);">
+        <div class="card-icon" style="color:var(--green);">✅</div>
+        <h3 style="color:#8ED452;">쉬운 시작 — 문서</h3>
+        <p>매일 반복하는 문서 하나를 자동화하는 것. 비용 0, 리스크 0, 즉시 체감 가능.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      "가장 쉽게 시작하는 방법" =<br>
+      <strong style="color:#fff;">지금 매일 만드는 문서를 AI에게 맡기는 것</strong>
+    </p>
+  </div>
+
+  <!-- SLIDE 10: 고객사에서 문서를 찾는 법 -->
+  <div class="slide" data-slide="10">
+    <div class="slide-tag">실전 기술</div>
+    <h2>고객사에서<br><em>문서를 찾는 법</em></h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">기준 1</span>
+        <span><strong style="color:#fff;">반복적</strong> — 매일, 매주, 매월 같은 형식으로 만드는 문서</span>
+      </li>
+      <li>
+        <span class="point-num">기준 2</span>
+        <span><strong style="color:#fff;">규칙적</strong> — 데이터가 바뀌어도 구조는 항상 동일한 문서</span>
+      </li>
+      <li>
+        <span class="point-num">기준 3</span>
+        <span><strong style="color:#fff;">시간 소모적</strong> — 만드는 데 30분 이상 걸리는 문서</span>
+      </li>
+    </ul>
+    <div class="hl-box" style="margin-top:24px; padding:22px 36px; max-width:700px;">
+      <div class="hl-main" style="font-size:1rem;">
+        이 세 가지를 모두 만족하는 문서가 있다면 —<br>
+        <em>그게 바로 첫 번째 자동화 대상입니다.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: 실습 안내 -->
+  <div class="slide" data-slide="11">
+    <div class="slide-tag">실습 (2시간)</div>
+    <h2 style="font-size:clamp(1.6rem,3vw,2.4rem);">오늘 실습에서<br><em>함께 할 것</em></h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">실습 1</span>
+        <span><strong style="color:#fff;">맥플로 공유</strong> — 지난 주 숙제로 만든 맥플로를 화면에 띄우고 발표</span>
+      </li>
+      <li>
+        <span class="point-num">실습 2</span>
+        <span><strong style="color:#fff;">문서 찾기 워크샵</strong> — 내 고객사(또는 내 회사)에서 자동화 가능한 문서 3가지 찾기</span>
+      </li>
+      <li>
+        <span class="point-num">실습 3</span>
+        <span><strong style="color:#fff;">구체화 대화</strong> — Claude Code와 1:1로 "이 문서 어떻게 자동화할까?" 대화하기</span>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:20px;">강사가 각 맥플로에 직접 피드백합니다 — 막히면 바로 손 드세요</p>
+  </div>
+
+  <!-- SLIDE 12: 숙제 -->
+  <div class="slide" data-slide="12">
+    <div class="slide-tag">이번 주 숙제</div>
+    <h2>다음 주까지<br><em>해올 것</em></h2>
+    <ul class="hw-list">
+      <li>
+        <span class="hw-icon">📄</span>
+        <div class="hw-text">
+          <strong>맥플로 고도화</strong>
+          <span>오늘 실습에서 구체화한 내용을 반영해 맥플로를 업데이트한다.<br>— 자동화할 문서 1개 선정, 현재 어떻게 만드는지 기록.</span>
+        </div>
+      </li>
+      <li>
+        <span class="hw-icon">🤖</span>
+        <div class="hw-text">
+          <strong>문서 자동화 시도</strong>
+          <span>선정한 문서를 Claude Code에게 "이걸 자동으로 만들어줘"라고 해보기.<br>결과가 어떻든 그 과정을 맥플로에 기록한다.</span>
+        </div>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:16px;">3주차에서 시스템으로 연결하는 방법을 다룹니다</p>
+  </div>
+
+  <!-- SLIDE 13: 마무리 -->
+  <div class="slide cover-bg" data-slide="13">
+    <div class="quote-box">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">
+        고객의 언어로 들어가라.<br>
+        그들이 매일 쓰는 <em style="color:var(--orange); font-style:normal;">문서가 곧 그들의 언어</em>다.
+      </div>
+      <div class="quote-source">— AX First Step · 2주차 핵심</div>
+    </div>
+    <div style="margin-top:48px; display:flex; gap:16px; align-items:center;">
+      <a href="week1.html" style="background:var(--surface); color:rgba(255,255,255,0.6); padding:14px 28px; border-radius:100px; font-weight:700; text-decoration:none; font-size:0.9rem; border:1px solid var(--border);">
+        ← 1주차 강의
+      </a>
+      <a href="week3.html" style="background:var(--orange); color:#fff; padding:14px 32px; border-radius:100px; font-weight:700; text-decoration:none; font-size:0.95rem;">
+        3주차 강의 보기 →
+      </a>
+    </div>
+    <a href="../axfirststone.html" style="margin-top:16px; color:rgba(255,255,255,0.3); font-size:0.85rem; text-decoration:none;">
+      수강 안내 페이지
+    </a>
+  </div>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  function updateSlide(next) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('prev');
+    setTimeout(() => slides[current].classList.remove('prev'), 400);
+    current = Math.max(0, Math.min(next, total - 1));
+    slides[current].classList.add('active');
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      if (current < total - 1) updateSlide(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.tagName === 'A') return;
+    const x = e.clientX;
+    if (x > window.innerWidth / 2) {
+      if (current < total - 1) updateSlide(current + 1);
+    } else {
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0 && current < total - 1) updateSlide(current + 1);
+      if (dx < 0 && current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Init
+  updateSlide(0);
+</script>
+</body>
+</html>

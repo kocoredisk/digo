@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4주차 — 고객을 AX로 안내하는 노하우 | AX First Step</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #E8611A;
+      --orange-light: #F28C28;
+      --dark: #111118;
+      --text: #1E1E2E;
+      --text-muted: #64748B;
+      --bg: #0F0F1A;
+      --surface: #1A1A2E;
+      --surface2: #222235;
+      --border: rgba(255,255,255,0.1);
+      --green: #68B82E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #fff;
+    }
+
+    /* ===== SLIDE ENGINE ===== */
+    .deck {
+      width: 100%; height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--orange);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 24px; right: 32px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== WEEK BADGE ===== */
+    .week-badge {
+      position: fixed;
+      top: 20px; left: 32px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ===== COMMON SLIDE ELEMENTS ===== */
+    .slide-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .slide h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .slide h1 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .slide h2 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide p.lead {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      line-height: 1.8;
+      margin-top: 20px;
+      max-width: 680px;
+    }
+
+    .sub-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== BIG NUMBER ===== */
+    .big-stat {
+      display: flex;
+      gap: 48px;
+      margin-top: 40px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 8px;
+    }
+
+    /* ===== TWO COL ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    /* ===== LIST SLIDE ===== */
+    .point-list {
+      list-style: none;
+      margin-top: 32px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .point-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .point-list li:last-child { border-bottom: none; }
+
+    .point-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(232,97,26,0.15);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ===== HIGHLIGHT BOX ===== */
+    .hl-box {
+      background: linear-gradient(135deg, rgba(232,97,26,0.15), rgba(242,140,40,0.08));
+      border: 1px solid rgba(232,97,26,0.3);
+      border-radius: 20px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 760px;
+      margin-top: 32px;
+    }
+
+    .hl-box .hl-main {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .hl-box .hl-main em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .hl-box .hl-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 16px;
+      line-height: 1.8;
+    }
+
+    /* ===== LADDER ===== */
+    .ladder {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 36px;
+    }
+
+    .ladder-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .ladder-step.active-step {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+
+    .ladder-arrow {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.25);
+      padding: 0 12px;
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: #0D0D1A;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 28px 36px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      max-width: 680px;
+      margin-top: 28px;
+      width: 100%;
+    }
+
+    .code-line { display: block; }
+    .code-prompt { color: rgba(255,255,255,0.25); margin-right: 8px; }
+    .code-human { color: #68B82E; }
+    .code-ai { color: var(--orange-light); }
+    .code-comment { color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+
+    /* ===== COVER SLIDE ===== */
+    .cover-bg {
+      background: radial-gradient(ellipse at 30% 50%, rgba(232,97,26,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(104,184,46,0.08) 0%, transparent 50%);
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      background: linear-gradient(135deg, #1A1A2E 0%, #111118 100%);
+    }
+
+    .section-divider .big-label {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ===== TIME BADGE ===== */
+    .time-badges {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .time-badge {
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .time-badge.lecture {
+      background: rgba(232,97,26,0.2);
+      color: var(--orange-light);
+      border: 1px solid rgba(232,97,26,0.3);
+    }
+    .time-badge.practice {
+      background: rgba(104,184,46,0.15);
+      color: #8ED452;
+      border: 1px solid rgba(104,184,46,0.25);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-box {
+      max-width: 700px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .quote-mark {
+      font-size: 4rem;
+      color: var(--orange);
+      line-height: 0.8;
+      font-family: 'Inter', sans-serif;
+      opacity: 0.4;
+    }
+    .quote-text {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .quote-source {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 16px;
+    }
+
+    /* ===== HOMEWORK ===== */
+    .hw-list {
+      list-style: none;
+      max-width: 640px;
+      width: 100%;
+      margin-top: 32px;
+    }
+    .hw-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .hw-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .hw-text strong {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .hw-text span {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 700px) {
+      .slide { padding: 40px 28px; }
+      .two-col { grid-template-columns: 1fr; gap: 16px; }
+      .ladder { flex-direction: column; gap: 8px; }
+      .ladder-arrow { transform: rotate(90deg); }
+      .big-stat { gap: 28px; }
+    }
+
+    /* ===== RESISTANCE (저항 패턴, week4 전용) ===== */
+    .resist-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      width: 100%;
+      max-width: 860px;
+      margin-top: 32px;
+    }
+    .resist-left {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 28px 30px;
+    }
+    .resist-left .resist-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 14px;
+      font-family: 'Inter', sans-serif;
+    }
+    .resist-left .resist-quote {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 700;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.75);
+    }
+    .resist-right {
+      background: linear-gradient(135deg, rgba(232,97,26,0.12), rgba(242,140,40,0.06));
+      border: 1px solid rgba(232,97,26,0.3);
+      border-radius: 16px;
+      padding: 28px 30px;
+    }
+    .resist-right .resist-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 14px;
+      font-family: 'Inter', sans-serif;
+    }
+    .resist-right .resist-strategy {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.8);
+    }
+    .resist-right .resist-strategy strong {
+      color: #fff;
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 700px) {
+      .resist-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="week-badge">AX First Step · 4주차</div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-hint">← → 키 또는 클릭으로 이동</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide cover-bg active" data-slide="1">
+    <div class="slide-tag">AX First Step · Week 4</div>
+    <h1>고객을 AX로<br><em>안내하는 노하우</em></h1>
+    <p class="lead">기술을 만드는 것과 팔리게 하는 것은 다릅니다.<br>마지막 주, 사람을 다루는 법을 배웁니다.</p>
+    <div class="time-badges">
+      <span class="time-badge lecture">강의 1시간</span>
+      <span class="time-badge practice">발표 &amp; 토론 4시간</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 기술 vs 설득 -->
+  <div class="slide" data-slide="2">
+    <div class="slide-tag">핵심 통찰</div>
+    <h2>기술은 됐다.<br>이제 <em>사람을 다뤄야</em> 한다.</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">⚙️</div>
+        <h3>기술력</h3>
+        <p>Vercel에 배포한다.<br>Supabase로 DB를 붙인다.<br>AI가 코드를 짜준다.</p>
+        <div style="margin-top:16px; font-size:0.85rem; color:rgba(104,184,46,0.8);">✓ 4주 만에 됩니다</div>
+      </div>
+      <div class="card" style="text-align:center; border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">🧠</div>
+        <h3>설득력</h3>
+        <p>고객이 왜 바꿔야 하는지<br>느끼게 만드는 능력.<br>진짜 장벽은 사람입니다.</p>
+        <div style="margin-top:16px; font-size:0.85rem; color:var(--orange-light);">→ 오늘 다루는 것</div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      기술을 완성해도 <strong style="color:#fff;">사람이 안 쓰면 아무것도 아닙니다.</strong>
+    </p>
+  </div>
+
+  <!-- SLIDE 3: 말을 바꿔라 -->
+  <div class="slide" data-slide="3">
+    <div class="slide-tag">언어 전략</div>
+    <h2><em>말을 바꿔라</em></h2>
+    <div class="hl-box" style="margin-top:28px; background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.12);">
+      <div class="hl-main" style="color:rgba(255,255,255,0.5); text-decoration:line-through; font-size:1.3rem;">
+        "AI 도입을 검토해보세요"
+      </div>
+    </div>
+    <div style="font-size:2rem; color:var(--orange); margin:16px 0;">↓</div>
+    <div class="hl-box" style="margin-top:0;">
+      <div class="hl-main">
+        <em>"지금 이 작업, 하루에 얼마나 걸리세요?"</em>
+      </div>
+      <div class="hl-sub" style="margin-top:12px;">
+        고통의 언어로 말하십시오.<br>
+        "AI", "시스템", "자동화" 같은 단어를 먼저 꺼내지 마세요.<br>
+        고객이 느끼는 불편함을 먼저 말하게 하세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: 문서 하나부터 -->
+  <div class="slide" data-slide="4">
+    <div class="slide-tag">작은 시작</div>
+    <h2>문서 <em>하나</em>부터 시작해라</h2>
+    <div class="hl-box" style="margin-top:32px;">
+      <div class="hl-main">
+        AX 전체를 팔려고 하지 마라.
+      </div>
+      <div class="hl-sub" style="margin-top:16px;">
+        "업무 전체를 AI로 바꿔드립니다" → 저항<br>
+        "이 보고서 양식 하나, AI로 5분에 채워드릴게요" → 호기심
+      </div>
+    </div>
+    <ul class="point-list" style="margin-top:28px; max-width:640px;">
+      <li>
+        <span class="point-num">원칙</span>
+        <span>작은 성공이 신뢰를 만든다. 신뢰가 다음 프로젝트를 만든다.</span>
+      </li>
+      <li>
+        <span class="point-num">전략</span>
+        <span>가장 반복적이고 지루한 작업 하나를 찾아라. 거기서 시작해라.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 5: 보여줘라 -->
+  <div class="slide" data-slide="5">
+    <div class="slide-tag">데모의 힘</div>
+    <h2>설명하지 말고<br><em>보여줘라</em></h2>
+    <div class="big-stat" style="margin-top:40px;">
+      <div class="stat-item">
+        <div class="stat-num">30</div>
+        <div class="stat-label">분 데모</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" style="font-size:clamp(2rem,4vw,3.5rem); color:rgba(255,255,255,0.3);">vs</div>
+        <div class="stat-label"></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" style="color:rgba(255,255,255,0.3);">3h</div>
+        <div class="stat-label">PT 설명</div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:32px;">
+      말로 설득하지 마십시오.<br>
+      <strong style="color:#fff;">눈앞에서 5분 안에 결과물을 만들어 보여주세요.</strong><br>
+      그것이 가장 강력한 안내입니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 6: 고객이 말하게 해라 -->
+  <div class="slide" data-slide="6">
+    <div class="slide-tag">컨설팅 자세</div>
+    <h2>고객이 <em>말하게</em> 해라</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🗣️</div>
+        <h3>컨설턴트는 듣는다</h3>
+        <p style="font-size:1.5rem; font-weight:900; color:var(--orange); margin-top:8px;">70%</p>
+        <p>고객의 이야기를 듣는다.<br>업무 방식, 불편함, 목표.</p>
+      </div>
+      <div class="card" style="text-align:center; border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">❓</div>
+        <h3>질문으로 이끈다</h3>
+        <p style="font-size:1.5rem; font-weight:900; color:var(--orange); margin-top:8px;">30%</p>
+        <p>답을 주지 말고 질문으로<br>고객이 스스로 깨닫게 한다.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      "이 업무에서 가장 번거로운 부분이 뭔가요?"<br>
+      <strong style="color:#fff;">이 질문 하나가 열 장의 제안서보다 강합니다.</strong>
+    </p>
+  </div>
+
+  <!-- SLIDE 7: 저항 패턴 1 -->
+  <div class="slide" data-slide="7">
+    <div class="slide-tag">저항 패턴 1 / 3</div>
+    <h2>저항: <em>"우리는 특수해서"</em></h2>
+    <div class="resist-col">
+      <div class="resist-left">
+        <div class="resist-label">고객의 말</div>
+        <div class="resist-quote">
+          "저희 업종은 특수해서요.<br>일반적인 AI 솔루션은<br>우리한테 안 맞아요."
+        </div>
+      </div>
+      <div class="resist-right">
+        <div class="resist-label">대응 전략</div>
+        <div class="resist-strategy">
+          <strong>동의하고 좁혀라</strong>
+          "맞습니다. 그래서 여쭤보고 싶은데요 — 업무 중 가장 반복되는 작업이 뭔가요?"<br><br>
+          특수함을 부정하지 마세요. 오히려 특수함 안에서 반복 업무를 찾으세요. 어떤 업종이든 반복 업무는 있습니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: 저항 패턴 2 -->
+  <div class="slide" data-slide="8">
+    <div class="slide-tag">저항 패턴 2 / 3</div>
+    <h2>저항: <em>"IT팀이 있어서"</em></h2>
+    <div class="resist-col">
+      <div class="resist-left">
+        <div class="resist-label">고객의 말</div>
+        <div class="resist-quote">
+          "저희 IT팀이 따로 있어서요.<br>그쪽을 통해야 하거든요.<br>저는 결정권이 없어요."
+        </div>
+      </div>
+      <div class="resist-right">
+        <div class="resist-label">대응 전략</div>
+        <div class="resist-strategy">
+          <strong>현장 담당자를 편으로 만들어라</strong>
+          "맞아요. IT팀이 최종 결정하겠죠. 그런데 담당자분이 먼저 써보시면 IT팀 설득도 쉬워지지 않을까요?"<br><br>
+          IT팀을 적으로 만들지 마세요. 현장 담당자가 먼저 성공 경험을 갖게 하세요. 그게 내부 설득의 탄약이 됩니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: 저항 패턴 3 -->
+  <div class="slide" data-slide="9">
+    <div class="slide-tag">저항 패턴 3 / 3</div>
+    <h2>저항: <em>"예산이 없어서"</em></h2>
+    <div class="resist-col">
+      <div class="resist-left">
+        <div class="resist-label">고객의 말</div>
+        <div class="resist-quote">
+          "좋긴 한데요, 지금은<br>예산이 없어서요.<br>내년에 다시 얘기해요."
+        </div>
+      </div>
+      <div class="resist-right">
+        <div class="resist-label">대응 전략</div>
+        <div class="resist-strategy">
+          <strong>비용이 아니라 손실로 이야기해라</strong>
+          "지금 그 작업에 한 달에 몇 시간 쓰시나요? 그게 인건비로 얼마인지 계산해보셨나요?"<br><br>
+          "예산 없다"는 우선순위가 낮다는 뜻입니다. ROI를 숫자로 보여주세요. 절약되는 시간 × 시급 = 설득입니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: 돈 받는 구조 -->
+  <div class="slide" data-slide="10">
+    <div class="slide-tag">수익 모델</div>
+    <h2>돈 받는 <em>구조</em></h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">🔨</div>
+        <h3>구축비 (일회성)</h3>
+        <p>시스템 설계, 개발, 배포.<br>프로젝트 단위로 받는 비용.<br>규모에 따라 100~500만원.</p>
+      </div>
+      <div class="card" style="border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">🔄</div>
+        <h3>월 유지비 (반복 수익)</h3>
+        <p>운영, 개선, 지원.<br>매달 들어오는 안정적 수입.<br>고객당 10~50만원.</p>
+      </div>
+    </div>
+    <div class="hl-box" style="margin-top:24px; padding:20px 32px;">
+      <div class="hl-main" style="font-size:1.2rem;">
+        고객 10명 × 월 30만원 = <em>월 300만원 추가 수입</em>
+      </div>
+      <div class="hl-sub" style="margin-top:8px;">컨설턴트의 새로운 수익원입니다.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: 첫 고객 -->
+  <div class="slide" data-slide="11">
+    <div class="slide-tag">영업 전략</div>
+    <h2>첫 고객은<br><em>새 고객이 아닙니다</em></h2>
+    <div class="hl-box" style="margin-top:32px;">
+      <div class="hl-main">
+        기존 고객 중 <em>파일럿부터</em>
+      </div>
+      <div class="hl-sub" style="margin-top:16px;">
+        이미 신뢰가 있습니다. 설득 비용이 0입니다.<br>
+        "좋은 거 먼저 써보시겠어요?" 한 마디면 됩니다.
+      </div>
+    </div>
+    <ul class="point-list" style="margin-top:28px; max-width:640px;">
+      <li>
+        <span class="point-num">Step 1</span>
+        <span>기존 고객 리스트에서 가장 불편함이 많은 곳을 고른다</span>
+      </li>
+      <li>
+        <span class="point-num">Step 2</span>
+        <span>무료 또는 저렴하게 파일럿 제안 — 성공 사례가 목적</span>
+      </li>
+      <li>
+        <span class="point-num">Step 3</span>
+        <span>성공 사례를 가지고 새 고객을 공략한다</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 12: 맥플로 발표 -->
+  <div class="slide" data-slide="12">
+    <div class="slide-tag">지금부터 발표</div>
+    <h2><em>맥플로 발표</em> 안내</h2>
+    <div class="hl-box" style="margin-top:32px;">
+      <div class="hl-main">
+        1인당 <em>5분</em>
+      </div>
+      <div class="hl-sub" style="margin-top:16px;">
+        발표 후 5분 Q&amp;A · 강사 피드백
+      </div>
+    </div>
+    <ul class="point-list" style="margin-top:28px; max-width:640px;">
+      <li>
+        <span class="point-num">무엇을</span>
+        <span>어떤 서비스를 만들었는가 — URL을 보여주세요</span>
+      </li>
+      <li>
+        <span class="point-num">누구에게</span>
+        <span>어떤 고객을 위한 서비스인가</span>
+      </li>
+      <li>
+        <span class="point-num">무슨 문제</span>
+        <span>어떤 불편함을 해결하는가 — 숫자로 표현하면 더 좋습니다</span>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:16px;">완성 여부와 무관합니다 — 과정이 중요합니다</p>
+  </div>
+
+  <!-- SLIDE 13: 수료 후 -->
+  <div class="slide" data-slide="13">
+    <div class="slide-tag">수료 이후</div>
+    <h2>수료 후 —<br><em>AX 전도사 네트워크</em></h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3>동기 네트워크</h3>
+        <p>같은 과정을 마친 사람들의 단톡방. 프로젝트 협업, 고객 소개, 기술 질문.</p>
+      </div>
+      <div class="card" style="border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">📡</div>
+        <h3>지속 지원</h3>
+        <p>월 1회 온라인 모임. 새 도구 업데이트 공유. 막히는 프로젝트 함께 풀기.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      혼자 하지 않아도 됩니다.<br>
+      <strong style="color:#fff;">이미 이 방법을 아는 사람들이 곁에 있습니다.</strong>
+    </p>
+  </div>
+
+  <!-- SLIDE 14: 마무리 COVER -->
+  <div class="slide cover-bg" data-slide="14">
+    <div class="ladder" style="margin-top:0; margin-bottom:36px;">
+      <div class="ladder-step">📄 문서</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">🌐 HTML</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">⚙️ 시스템</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step active-step">☁️ SaaS</div>
+    </div>
+    <div class="quote-box" style="margin-top:0;">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">
+        문서 → HTML → 시스템 → SaaS.<br>
+        <em style="color:var(--orange); font-style:normal;">당신은 이제 이 사다리를 압니다.</em>
+      </div>
+      <div class="quote-source">— AX First Step · 수료</div>
+    </div>
+    <div style="margin-top:40px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; justify-content:center;">
+      <a href="week3.html" style="color:rgba(255,255,255,0.4); font-size:0.9rem; text-decoration:none; padding:14px 24px; border:1px solid rgba(255,255,255,0.15); border-radius:100px;">
+        ← 3주차
+      </a>
+      <a href="../axfirststone.html" style="background:var(--orange); color:#fff; padding:14px 32px; border-radius:100px; font-weight:700; text-decoration:none; font-size:0.95rem;">
+        수강 안내 페이지 →
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  function updateSlide(next) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('prev');
+    setTimeout(() => slides[current].classList.remove('prev'), 400);
+    current = Math.max(0, Math.min(next, total - 1));
+    slides[current].classList.add('active');
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      if (current < total - 1) updateSlide(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.tagName === 'A') return;
+    const x = e.clientX;
+    if (x > window.innerWidth / 2) {
+      if (current < total - 1) updateSlide(current + 1);
+    } else {
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0 && current < total - 1) updateSlide(current + 1);
+      if (dx < 0 && current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Init
+  updateSlide(0);
+</script>
+</body>
+</html>

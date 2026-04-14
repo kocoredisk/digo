@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3주차 — 브라우저로 내 서비스에 접속하자 | AX First Step</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #E8611A;
+      --orange-light: #F28C28;
+      --dark: #111118;
+      --text: #1E1E2E;
+      --text-muted: #64748B;
+      --bg: #0F0F1A;
+      --surface: #1A1A2E;
+      --surface2: #222235;
+      --border: rgba(255,255,255,0.1);
+      --green: #68B82E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #fff;
+    }
+
+    /* ===== SLIDE ENGINE ===== */
+    .deck {
+      width: 100%; height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--orange);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 24px; right: 32px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== WEEK BADGE ===== */
+    .week-badge {
+      position: fixed;
+      top: 20px; left: 32px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ===== COMMON SLIDE ELEMENTS ===== */
+    .slide-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .slide h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .slide h1 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .slide h2 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide p.lead {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      line-height: 1.8;
+      margin-top: 20px;
+      max-width: 680px;
+    }
+
+    .sub-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== BIG NUMBER ===== */
+    .big-stat {
+      display: flex;
+      gap: 48px;
+      margin-top: 40px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 8px;
+    }
+
+    /* ===== TWO COL ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    /* ===== LIST SLIDE ===== */
+    .point-list {
+      list-style: none;
+      margin-top: 32px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .point-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .point-list li:last-child { border-bottom: none; }
+
+    .point-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(232,97,26,0.15);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ===== HIGHLIGHT BOX ===== */
+    .hl-box {
+      background: linear-gradient(135deg, rgba(232,97,26,0.15), rgba(242,140,40,0.08));
+      border: 1px solid rgba(232,97,26,0.3);
+      border-radius: 20px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 760px;
+      margin-top: 32px;
+    }
+
+    .hl-box .hl-main {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .hl-box .hl-main em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .hl-box .hl-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 16px;
+      line-height: 1.8;
+    }
+
+    /* ===== LADDER ===== */
+    .ladder {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 36px;
+    }
+
+    .ladder-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .ladder-step.active-step {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+
+    .ladder-arrow {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.25);
+      padding: 0 12px;
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: #0D0D1A;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 28px 36px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      max-width: 680px;
+      margin-top: 28px;
+      width: 100%;
+    }
+
+    .code-line { display: block; }
+    .code-prompt { color: rgba(255,255,255,0.25); margin-right: 8px; }
+    .code-human { color: #68B82E; }
+    .code-ai { color: var(--orange-light); }
+    .code-comment { color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+
+    /* ===== COVER SLIDE ===== */
+    .cover-bg {
+      background: radial-gradient(ellipse at 30% 50%, rgba(232,97,26,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(104,184,46,0.08) 0%, transparent 50%);
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      background: linear-gradient(135deg, #1A1A2E 0%, #111118 100%);
+    }
+
+    .section-divider .big-label {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ===== TIME BADGE ===== */
+    .time-badges {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .time-badge {
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .time-badge.lecture {
+      background: rgba(232,97,26,0.2);
+      color: var(--orange-light);
+      border: 1px solid rgba(232,97,26,0.3);
+    }
+    .time-badge.practice {
+      background: rgba(104,184,46,0.15);
+      color: #8ED452;
+      border: 1px solid rgba(104,184,46,0.25);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-box {
+      max-width: 700px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .quote-mark {
+      font-size: 4rem;
+      color: var(--orange);
+      line-height: 0.8;
+      font-family: 'Inter', sans-serif;
+      opacity: 0.4;
+    }
+    .quote-text {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .quote-source {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 16px;
+    }
+
+    /* ===== HOMEWORK ===== */
+    .hw-list {
+      list-style: none;
+      max-width: 640px;
+      width: 100%;
+      margin-top: 32px;
+    }
+    .hw-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .hw-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .hw-text strong {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .hw-text span {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 700px) {
+      .slide { padding: 40px 28px; }
+      .two-col { grid-template-columns: 1fr; gap: 16px; }
+      .ladder { flex-direction: column; gap: 8px; }
+      .ladder-arrow { transform: rotate(90deg); }
+      .big-stat { gap: 28px; }
+    }
+
+    /* ===== STACK FLOW (week3 전용) ===== */
+    .stack-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 36px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+    }
+    .stack-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 22px;
+      text-align: center;
+      min-width: 110px;
+    }
+    .stack-node .node-icon {
+      font-size: 1.4rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .stack-node .node-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: block;
+    }
+    .stack-node .node-sub {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      display: block;
+      margin-top: 2px;
+    }
+    .stack-node.highlight-node {
+      border-color: rgba(232,97,26,0.5);
+      background: rgba(232,97,26,0.08);
+    }
+    .stack-arrow {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.2);
+      padding: 0 8px;
+    }
+
+    /* ===== THREE COL ===== */
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+    }
+    @media (max-width: 700px) {
+      .three-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="week-badge">AX First Step · 3주차</div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-hint">← → 키 또는 클릭으로 이동</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide cover-bg active" data-slide="1">
+    <div class="slide-tag">AX First Step · Week 3</div>
+    <h1>브라우저로<br>내 서비스에 <em>접속하자</em></h1>
+    <p class="lead">만든 것을 세상에 내보내는 시간입니다.<br>오늘 끝나면 URL 하나가 생깁니다.</p>
+    <div class="time-badges">
+      <span class="time-badge lecture">강의 2시간</span>
+      <span class="time-badge practice">실습 3시간</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 2주 전 대화 -->
+  <div class="slide" data-slide="2">
+    <div class="slide-tag">돌아보기</div>
+    <h2>2주 전 대화를<br><em>기억하시나요?</em></h2>
+    <div class="hl-box" style="margin-top:32px;">
+      <div class="hl-main">
+        HTML로 만든 파일,<br>지금은 <em>내 컴퓨터에만</em> 있습니다.
+      </div>
+      <div class="hl-sub">
+        파일을 열면 주소창에 <code style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;">file:///C:/Users/...</code> 라고 뜹니다.<br>
+        이건 인터넷이 아닙니다. 내 하드 드라이브입니다.
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      세상에 내보내려면 — <strong style="color:#fff;">서버에 올려야 합니다.</strong><br>
+      오늘 그걸 합니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 3: 서버·프론트·백엔드 -->
+  <div class="slide" data-slide="3">
+    <div class="slide-tag">기본 개념</div>
+    <h2>서버 · 프론트엔드 · 백엔드<br><em>한 번만 정리합시다</em></h2>
+    <div class="three-col" style="margin-top:36px;">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🍽️</div>
+        <h3>프론트엔드</h3>
+        <p>손님이 보는 홀.<br>HTML · CSS · JS.<br>눈에 보이는 모든 것.</p>
+      </div>
+      <div class="card" style="text-align:center; border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">👨‍🍳</div>
+        <h3>백엔드</h3>
+        <p>손님이 못 보는 주방.<br>로그인·결제·데이터 처리.<br>서버에서 돌아간다.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon">🗄️</div>
+        <h3>데이터베이스</h3>
+        <p>재료를 쌓아두는 창고.<br>회원정보·게시글·주문 등<br>데이터가 여기 산다.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      오늘은 <strong style="color:#fff;">프론트엔드를 세상에 꺼내는</strong> 날입니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 4: 사다리 — 시스템 계단 -->
+  <div class="slide" data-slide="4">
+    <div class="slide-tag">4주 전체 흐름</div>
+    <h2>이 강의를 관통하는<br><em>하나의 논리</em></h2>
+    <div class="ladder" style="margin-top:44px;">
+      <div class="ladder-step">📄 문서</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">🌐 HTML</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step active-step">⚙️ 시스템</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">☁️ SaaS</div>
+    </div>
+    <p class="lead" style="margin-top:32px;">
+      오늘은 세 번째 계단 —<br>
+      <strong style="color:var(--orange);">HTML이 서버에 올라가면 시스템이 됩니다.</strong><br>
+      URL이 생기고, 누구나 접속할 수 있습니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 5: Vercel -->
+  <div class="slide" data-slide="5">
+    <div class="slide-tag">배포 도구</div>
+    <h2><em>Vercel</em> — 왜 이걸 씁니까</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h3>GitHub에 push하면 자동 배포</h3>
+        <p>코드를 올리는 순간 Vercel이 감지해서 자동으로 빌드하고 배포합니다. FTP, 서버 접속 필요 없음.</p>
+      </div>
+      <div class="card" style="border-color:rgba(104,184,46,0.3); background:rgba(104,184,46,0.05);">
+        <div class="card-icon">💸</div>
+        <h3>무료 · 초보자 최적</h3>
+        <p>개인 프로젝트는 완전 무료. 도메인도 자동으로 붙여줍니다. 서버 지식이 없어도 5분 안에 배포 가능.</p>
+      </div>
+    </div>
+    <div class="hl-box" style="margin-top:28px; padding:24px 36px;">
+      <div class="hl-main" style="font-size:1.2rem;">
+        GitHub → Vercel → <em>yourname.vercel.app</em>
+      </div>
+      <div class="hl-sub" style="margin-top:10px;">이게 오늘 실습의 전부입니다.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Supabase -->
+  <div class="slide" data-slide="6">
+    <div class="slide-tag">백엔드 도구</div>
+    <h2><em>Supabase</em> — 백엔드 없이 백엔드 쓰기</h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">DB</span>
+        <span><strong style="color:#fff;">PostgreSQL 데이터베이스</strong> — 테이블 만들고 데이터 저장. 클릭 몇 번으로.</span>
+      </li>
+      <li>
+        <span class="point-num">인증</span>
+        <span><strong style="color:#fff;">로그인·회원가입</strong> — 이메일, 구글, 카카오 인증을 코드 없이 붙일 수 있습니다.</span>
+      </li>
+      <li>
+        <span class="point-num">API</span>
+        <span><strong style="color:#fff;">REST API 자동 생성</strong> — 테이블을 만들면 API 주소가 즉시 생깁니다.</span>
+      </li>
+    </ul>
+    <p class="lead" style="margin-top:20px;">
+      백엔드 개발자 없이도 <strong style="color:#fff;">데이터를 저장하고 꺼내는 서비스</strong>를 만들 수 있습니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 7: 도메인 -->
+  <div class="slide" data-slide="7">
+    <div class="slide-tag">도메인</div>
+    <h2><em>digo.kr</em> 같은 주소를<br>갖는다는 것</h2>
+    <div class="two-col" style="margin-top:32px;">
+      <div class="card">
+        <div class="card-icon">🏷️</div>
+        <h3>브랜딩</h3>
+        <p><code style="font-size:0.85rem;">yourname.vercel.app</code>과<br><code style="font-size:0.85rem;">yourservice.kr</code>은<br>같은 서비스가 아닙니다.</p>
+      </div>
+      <div class="card" style="border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">🤝</div>
+        <h3>신뢰 · 프로페셔널함</h3>
+        <p>내 도메인은 고객에게<br>"이 사람은 진지하다"는<br>첫인상을 줍니다.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">
+      도메인은 연 1~2만원. <strong style="color:#fff;">가장 저렴한 브랜딩 투자</strong>입니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 8: 도메인 이메일 -->
+  <div class="slide" data-slide="8">
+    <div class="slide-tag">도메인 이메일</div>
+    <h2>도메인이 물고 있는<br><em>이메일 시스템</em></h2>
+    <div class="hl-box" style="margin-top:32px;">
+      <div class="hl-main">
+        <em>noreply@내도메인.kr</em><br>
+        <span style="color:rgba(255,255,255,0.6); font-size:1.2rem;">hello@내도메인.kr</span>
+      </div>
+      <div class="hl-sub" style="margin-top:16px;">
+        도메인 이메일은 서비스 신뢰도를 높입니다.<br>
+        Cloudflare Email Routing으로 무료 설정 가능.
+      </div>
+    </div>
+    <ul class="point-list" style="margin-top:28px; max-width:640px;">
+      <li>
+        <span class="point-num">발신</span>
+        <span>회원가입 확인, 비밀번호 재설정 메일 — 내 도메인 이름으로 발송</span>
+      </li>
+      <li>
+        <span class="point-num">수신</span>
+        <span>고객 문의 메일을 내 도메인 주소로 받아 Gmail로 포워딩</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 9: 전체 스택 그림 -->
+  <div class="slide" data-slide="9">
+    <div class="slide-tag">전체 인프라</div>
+    <h2>내 서비스의<br><em>전체 스택 그림</em></h2>
+    <div class="stack-flow" style="margin-top:40px;">
+      <div class="stack-node highlight-node">
+        <span class="node-icon">🌐</span>
+        <span class="node-label">도메인</span>
+        <span class="node-sub">digo.kr</span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node highlight-node">
+        <span class="node-icon">🛡️</span>
+        <span class="node-label">Cloudflare</span>
+        <span class="node-sub">DNS · CDN · 이메일</span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node highlight-node">
+        <span class="node-icon">▲</span>
+        <span class="node-label">Vercel</span>
+        <span class="node-sub">프론트 호스팅</span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node highlight-node">
+        <span class="node-icon">🐙</span>
+        <span class="node-label">GitHub</span>
+        <span class="node-sub">소스코드</span>
+      </div>
+      <div class="stack-arrow">→</div>
+      <div class="stack-node highlight-node">
+        <span class="node-icon">💻</span>
+        <span class="node-label">내 코드</span>
+        <span class="node-sub">HTML · JS</span>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:32px;">
+      사용자가 도메인을 치면 — 이 흐름이 <strong style="color:#fff;">0.1초 안에</strong> 일어납니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 10: 실습 안내 -->
+  <div class="slide" data-slide="10">
+    <div class="slide-tag">실습 (3시간)</div>
+    <h2>오늘 실습에서<br><em>직접 해볼 것</em></h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">실습 1</span>
+        <span><strong style="color:#fff;">GitHub 연동</strong> — 내 HTML 파일을 GitHub 저장소에 올리기</span>
+      </li>
+      <li>
+        <span class="point-num">실습 2</span>
+        <span><strong style="color:#fff;">Vercel 배포</strong> — GitHub 저장소를 Vercel에 연결 → 자동 배포 확인</span>
+      </li>
+      <li>
+        <span class="point-num">실습 3</span>
+        <span><strong style="color:#fff;">URL로 접속</strong> — 내가 만든 URL을 핸드폰으로 열어보기</span>
+      </li>
+    </ul>
+    <div class="hl-box" style="margin-top:24px; padding:20px 32px;">
+      <div class="hl-main" style="font-size:1.1rem;">
+        오늘 끝나면 <em>yourname.vercel.app</em> URL을 가져가십니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: 숙제 -->
+  <div class="slide" data-slide="11">
+    <div class="slide-tag">이번 주 숙제</div>
+    <h2>다음 주까지<br><em>해올 것</em></h2>
+    <ul class="hw-list">
+      <li>
+        <span class="hw-icon">🗺️</span>
+        <div class="hw-text">
+          <strong>내 서비스의 인프라 그림 그려오기</strong>
+          <span>도메인 → 어디에 배포? → DB는 어디? — 종이든 그림 파일이든 OK<br>실제로 구축했든, 아직 계획이든 모두 좋습니다</span>
+        </div>
+      </li>
+      <li>
+        <span class="hw-icon">🔗</span>
+        <div class="hw-text">
+          <strong>배포된 URL 공유하기</strong>
+          <span>카카오톡 단톡방에 내 Vercel URL 올리기<br>접속이 안 되면 OK — 그것도 실습입니다</span>
+        </div>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:16px;">4주차에는 인프라 그림 발표합니다</p>
+  </div>
+
+  <!-- SLIDE 12: 마무리 -->
+  <div class="slide cover-bg" data-slide="12">
+    <div class="quote-box">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">
+        파일을 만드는 것과<br>
+        <em style="color:var(--orange); font-style:normal;">URL이 생기는 것</em>은<br>
+        완전히 다른 세계입니다.
+      </div>
+      <div class="quote-source">— AX First Step · 3주차 핵심</div>
+    </div>
+    <div style="margin-top:48px; display:flex; gap:16px; align-items:center;">
+      <a href="week2.html" style="color:rgba(255,255,255,0.4); font-size:0.9rem; text-decoration:none; padding:14px 24px; border:1px solid rgba(255,255,255,0.15); border-radius:100px;">
+        ← 2주차
+      </a>
+      <a href="week4.html" style="background:var(--orange); color:#fff; padding:14px 32px; border-radius:100px; font-weight:700; text-decoration:none; font-size:0.95rem;">
+        4주차 강의 보기 →
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  function updateSlide(next) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('prev');
+    setTimeout(() => slides[current].classList.remove('prev'), 400);
+    current = Math.max(0, Math.min(next, total - 1));
+    slides[current].classList.add('active');
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      if (current < total - 1) updateSlide(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.tagName === 'A') return;
+    const x = e.clientX;
+    if (x > window.innerWidth / 2) {
+      if (current < total - 1) updateSlide(current + 1);
+    } else {
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0 && current < total - 1) updateSlide(current + 1);
+      if (dx < 0 && current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Init
+  updateSlide(0);
+</script>
+</body>
+</html>
