@@ -17,3 +17,6 @@ Thumbs.db
 
 # 로컬 문서
 프로젝트_레포_배포_구조.md
+
+# 킹폴더 (DocuKing 동기화 대상 — 커밋 금지)
+zy_Coworker_*/
