@@ -11,3 +11,6 @@ Thumbs.db
 
 # Claude Code
 .claude/
+
+# 로컬 문서
+프로젝트_레포_배포_구조.md
