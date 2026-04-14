@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__kingwork__browser_open",
+      "mcp__kingwork__browser_navigate"
+    ]
+  }
+}

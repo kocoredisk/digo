@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects
+/hipus        /hipus.html     301
+/minierp      /minierp.html   301
+/mydoo        /mydoo.html     301
+/axfirststone /axfirststone.html 301
+/ax           /axfirststone.html 301

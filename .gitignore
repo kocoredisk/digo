@@ -1,0 +1,10 @@
+# KingFolder (DocuKing sync)
+zx_KingFolder/
+
+# DocuKing
+.docuking/
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
