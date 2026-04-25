@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linkee Solution — AI로 일하는 방식의 표준을 제시합니다</title>
+  <meta name="description" content="한국과 미국에서 함께 성장하는 AI 솔루션 기업. myDoo, Hipus.ai, miniERP.ai를 만듭니다.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0B1730;
+      --navy-mid: #172040;
+      --blue: #2563EB;
+      --blue-light: #3B82F6;
+      --blue-pale: #EFF6FF;
+      --indigo: #4F46E5;
+      --teal: #0D9488;
+      --teal-pale: #F0FDFA;
+      --text: #1E293B;
+      --text-sec: #64748B;
+      --border: #E2E8F0;
+      --bg: #F8FAFC;
+      --white: #FFFFFF;
+      --radius: 14px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.07);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans KR', 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ── LANG TOGGLE ── */
+    .lang-toggle {
+      display: flex; align-items: center;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .lang-btn {
+      padding: 5px 12px; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--text-sec); transition: all 0.18s; font-family: 'Inter', sans-serif;
+      letter-spacing: 0.03em;
+    }
+    .lang-btn.active {
+      background: var(--navy); color: white;
+    }
+    .lang-btn:hover:not(.active) { background: var(--blue-pale); color: var(--blue); }
+
+    /* ── HEADER ── */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1120px; margin: 0 auto;
+      padding: 0 24px; height: 62px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .logo-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem; font-weight: 800; color: var(--navy);
+      letter-spacing: -0.03em; white-space: nowrap;
+    }
+    .logo-text span { color: var(--blue); }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .site-nav { display: flex; gap: 2px; }
+    .site-nav a {
+      font-size: 0.82rem; font-weight: 500; color: var(--text-sec);
+      padding: 6px 12px; border-radius: 7px; transition: all 0.18s;
+    }
+    .site-nav a:hover { color: var(--blue); background: var(--blue-pale); }
+    .nav-cta {
+      font-size: 0.82rem; font-weight: 700;
+      color: white; background: var(--blue);
+      padding: 7px 18px; border-radius: 8px; transition: all 0.18s; white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--indigo); }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(140deg, var(--navy) 0%, #1B2E6F 55%, #0F3460 100%);
+      color: white; padding: 110px 24px 100px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.18) 0%, transparent 70%);
+    }
+    .hero-inner { position: relative; z-index: 1; }
+    .hero-flags {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      padding: 5px 16px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.85); margin-bottom: 30px;
+    }
+    .hero-flags .dot { width: 4px; height: 4px; background: rgba(255,255,255,0.4); border-radius: 50%; }
+    .hero h1 {
+      font-size: clamp(2rem, 5.5vw, 3.5rem);
+      font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.035em; margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: #93C5FD; }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,0.68);
+      max-width: 520px; margin: 0 auto 44px; line-height: 1.8;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--blue); color: white;
+      padding: 13px 28px; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 700; transition: all 0.2s;
+    }
+    .btn-primary:hover { background: #1D4ED8; transform: translateY(-2px); }
+    .btn-ghost {
+      border: 1.5px solid rgba(255,255,255,0.35); color: white;
+      padding: 13px 28px; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+    /* ── SECTION COMMON ── */
+    .section { padding: 88px 24px; }
+    .section-inner { max-width: 1120px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+      font-weight: 800; letter-spacing: -0.035em;
+      color: var(--navy); margin-bottom: 14px;
+    }
+    .section-desc { font-size: 1rem; color: var(--text-sec); max-width: 580px; line-height: 1.8; }
+
+    /* ── ABOUT ── */
+    .about-bg { background: white; }
+    .about-entities {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px;
+    }
+    .entity-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+    }
+    .entity-flag { font-size: 1.8rem; margin-bottom: 12px; }
+    .entity-name { font-size: 1.1rem; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+    .entity-eng { font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-sec); margin-bottom: 20px; }
+    .entity-info { display: flex; flex-direction: column; gap: 10px; }
+    .entity-row { display: flex; gap: 12px; align-items: flex-start; }
+    .entity-row-label {
+      font-size: 0.73rem; font-weight: 600; letter-spacing: 0.05em;
+      color: var(--text-sec); text-transform: uppercase;
+      min-width: 56px; padding-top: 1px;
+    }
+    .entity-row-val { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+    .entity-mission {
+      margin-top: 20px; padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--text-sec); line-height: 1.8;
+    }
+
+    /* ── SERVICES ── */
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px;
+    }
+    .service-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      transition: all 0.25s; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+    }
+    .service-card-bar {
+      height: 3px; margin: -28px -28px 24px;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .service-card-bar.blue { background: linear-gradient(90deg, var(--blue), var(--indigo)); }
+    .service-card-bar.teal { background: linear-gradient(90deg, var(--teal), #0891B2); }
+    .service-card-bar.violet { background: linear-gradient(90deg, #7C3AED, #4F46E5); }
+    .service-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+    .service-icon { font-size: 1.6rem; margin-bottom: 12px; }
+    .service-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.15rem; font-weight: 800; color: var(--navy);
+      margin-bottom: 8px; letter-spacing: -0.02em;
+    }
+    .service-desc { font-size: 0.87rem; color: var(--text-sec); line-height: 1.75; flex: 1; }
+    .service-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 16px; font-size: 0.82rem; font-weight: 700; color: var(--blue);
+      transition: gap 0.2s;
+    }
+    .service-link:hover { gap: 8px; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .service-tags span {
+      font-size: 0.71rem; font-weight: 600;
+      padding: 3px 8px; border-radius: 5px;
+      background: var(--blue-pale); color: var(--blue);
+    }
+    .service-tags span.teal { background: var(--teal-pale); color: var(--teal); }
+    .service-tags span.violet { background: #EDE9FE; color: #7C3AED; }
+
+    /* ── VISION ── */
+    .vision-bg {
+      background: linear-gradient(135deg, var(--navy) 0%, #0F3460 100%); color: white;
+    }
+    .vision-bg .section-label { color: #93C5FD; }
+    .vision-bg .section-title { color: white; }
+    .vision-bg .section-desc { color: rgba(255,255,255,0.65); }
+    .vision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 48px; }
+    .vision-card {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13);
+      border-radius: var(--radius); padding: 32px;
+    }
+    .vision-flag { font-size: 2rem; margin-bottom: 14px; }
+    .vision-card-title { font-size: 1.05rem; font-weight: 800; color: white; margin-bottom: 6px; }
+    .vision-card-sub { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .vision-card-desc { font-size: 0.88rem; color: rgba(255,255,255,0.72); line-height: 1.8; }
+    .vision-quote {
+      margin-top: 32px; padding: 28px;
+      background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3);
+      border-radius: var(--radius); text-align: center;
+    }
+    .vision-quote p { font-size: 1.05rem; color: rgba(255,255,255,0.88); line-height: 1.8; }
+    .vision-quote strong { color: #93C5FD; font-weight: 700; }
+
+    /* ── CONTACT ── */
+    .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    .contact-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+    }
+    .contact-country { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .contact-flag { font-size: 1.6rem; }
+    .contact-country-name { font-size: 0.88rem; font-weight: 700; color: var(--navy); }
+    .contact-country-sub { font-size: 0.75rem; color: var(--text-sec); }
+    .contact-rows { display: flex; flex-direction: column; gap: 12px; }
+    .contact-row { display: flex; gap: 12px; align-items: flex-start; }
+    .contact-row-label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+      color: var(--text-sec); text-transform: uppercase; min-width: 52px; padding-top: 2px;
+    }
+    .contact-row-val { font-size: 0.9rem; color: var(--text); line-height: 1.55; }
+    .contact-row-val a { color: var(--blue); }
+    .contact-cta {
+      margin-top: 48px; text-align: center; padding: 36px;
+      background: var(--blue-pale); border-radius: var(--radius);
+    }
+    .contact-cta p { font-size: 1rem; color: var(--text); margin-bottom: 20px; }
+    .btn-blue {
+      display: inline-block; background: var(--blue); color: white;
+      padding: 13px 32px; border-radius: 10px;
+      font-size: 0.92rem; font-weight: 700; transition: all 0.2s;
+    }
+    .btn-blue:hover { background: #1D4ED8; }
+
+    /* ── FOOTER ── */
+    .site-footer { background: #060E22; color: rgba(255,255,255,0.35); padding: 32px 24px; }
+    .footer-inner {
+      max-width: 1120px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: space-between; align-items: center;
+    }
+    .footer-copy { font-size: 0.78rem; line-height: 1.8; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 0.78rem; color: rgba(255,255,255,0.35); transition: color 0.2s; }
+    .footer-links a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .site-nav { display: none; }
+      .about-entities, .services-grid, .vision-grid, .contact-wrap { grid-template-columns: 1fr; }
+      .hero { padding: 76px 20px 64px; }
+      .section { padding: 64px 20px; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .services-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-text">Linkee<span>.</span></div>
+    <nav class="site-nav">
+      <a href="#about" t="nav-about">회사 소개</a>
+      <a href="#services" t="nav-services">서비스</a>
+      <a href="#vision" t="nav-vision">비전</a>
+      <a href="#contact" t="nav-contact">연락처</a>
+    </nav>
+    <div class="header-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('ko')" id="btn-ko">KO</button>
+        <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+      </div>
+      <a href="#contact" class="nav-cta" t="nav-cta">문의하기</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-flags">
+      <span>🇰🇷 Korea</span>
+      <span class="dot"></span>
+      <span>🇺🇸 United States</span>
+    </div>
+    <h1 t="hero-h1">AI로 일하는 방식의<br><em>표준을 제시합니다</em></h1>
+    <p class="hero-sub" t="hero-sub">세계인에게 가장 편리하고 합리적인,<br>마땅히 그렇게 일하는 방식을 제안합니다.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-primary" t="hero-btn1">서비스 살펴보기</a>
+      <a href="#contact" class="btn-ghost" t="hero-btn2">협업 문의</a>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section class="section" id="vision" style="background:white; border-bottom:1px solid var(--border);">
+  <div class="section-inner" style="text-align:center; max-width:760px;">
+    <div class="section-label" t="vision-label">Our Vision</div>
+    <h2 class="section-title" t="vision-title">AI는 인간에게 점점 가까워지고 있습니다</h2>
+    <p style="font-size:1.05rem; color:var(--text-sec); line-height:1.9; margin-bottom:52px;" t="vision-sub">회중시계가 손목시계가 되고, 웨어러블이 되었듯이.<br>우리는 사람이 AI와 함께 일하는 환경을 만듭니다.</p>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px; text-align:left;">
+      <div style="padding:28px; background:var(--bg); border-radius:var(--radius); border:1px solid var(--border);">
+        <div style="font-size:1.5rem; margin-bottom:14px;">🔗</div>
+        <div style="font-size:0.88rem; font-weight:800; color:var(--navy); margin-bottom:8px;" t="v1-title">연결</div>
+        <p style="font-size:0.85rem; color:var(--text-sec); line-height:1.75;" t="v1-desc">링키(Linkee)는 연결하는 존재입니다. 사람과 AI를, 일과 결과를 잇습니다.</p>
+      </div>
+      <div style="padding:28px; background:var(--bg); border-radius:var(--radius); border:1px solid var(--border);">
+        <div style="font-size:1.5rem; margin-bottom:14px;">🧠</div>
+        <div style="font-size:0.88rem; font-weight:800; color:var(--navy); margin-bottom:8px;" t="v2-title">기억</div>
+        <p style="font-size:0.85rem; color:var(--text-sec); line-height:1.75;" t="v2-desc">AI가 나의 맥락을 기억하고, 함께 일합니다.</p>
+      </div>
+      <div style="padding:28px; background:var(--bg); border-radius:var(--radius); border:1px solid var(--border);">
+        <div style="font-size:1.5rem; margin-bottom:14px;">🌱</div>
+        <div style="font-size:0.88rem; font-weight:800; color:var(--navy); margin-bottom:8px;" t="v3-title">환경</div>
+        <p style="font-size:0.85rem; color:var(--text-sec); line-height:1.75;" t="v3-desc">인간이 보다 편하게 일(Doo)할 수 있는 환경을 구현해 갑니다.</p>
+      </div>
+    </div>
+    <div style="margin-top:36px; padding:28px 32px; background:linear-gradient(135deg,#EDE9FE 0%,#EFF6FF 100%); border-radius:var(--radius); border:1px solid #C7D2FE; text-align:center;">
+      <div style="font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--indigo); margin-bottom:10px;" t="mydoo-bridge-label">이것을 하나로 구현한 것</div>
+      <p style="font-size:1.05rem; font-weight:700; color:var(--navy); margin-bottom:8px;" t="mydoo-bridge-title">사람과 AI, <em style="font-style:normal; color:var(--indigo)">두 축의 협업</em>으로 일이 완성됩니다</p>
+      <p style="font-size:0.9rem; color:var(--text-sec); line-height:1.8; max-width:580px; margin:0 auto;" t="mydoo-bridge-desc">AI를 가장 지혜롭게 활용하는 방법 — 지시하면 시작되고, 결과가 돌아옵니다. 모든 작업에 시작과 끝이 있고, 조직의 지식이 자산으로 남습니다. 이것이 <strong>myDoo</strong>로 일하는 방식입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section" id="services">
+  <div class="section-inner">
+    <div class="section-label" t="svc-label">Our Services</div>
+    <h2 class="section-title" t="svc-title">링키솔루션이 만드는 것들</h2>
+    <p class="section-desc" t="svc-desc">AI 워크스페이스부터 경영 데이터 AI까지 — 기업의 모든 업무 레이어를 커버합니다.</p>
+    <div class="services-grid">
+
+      <div class="service-card">
+        <div class="service-card-bar violet"></div>
+        <div class="service-icon">🧠</div>
+        <div class="service-name">myDoo.ai</div>
+        <p class="service-desc" t="mydoo-desc">일을 시작하면 AI가 맥락을 기억하고 함께 실행합니다. 쌓인 지식은 조직의 자산이 됩니다. AI를 가장 지혜롭게 쓰는 방법, 그 자체가 myDoo입니다.</p>
+        <div class="service-tags">
+          <span class="violet" t="tag-recall">장기 기억</span>
+          <span class="violet" t="tag-brain">지식 그래프</span>
+          <span class="violet">AX Journey</span>
+        </div>
+        <a href="https://mydoo.ai" target="_blank" class="service-link" t="link-more">자세히 보기 →</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-bar blue"></div>
+        <div class="service-icon">💰</div>
+        <div class="service-name">Hipus.ai</div>
+        <p class="service-desc" t="hipus-desc">은행·카드·국세청 데이터로 현금흐름을 실시간 파악하는 AI 솔루션. 기존 회계시스템과 별개로 작동하며, 모듈 조합으로 ERP 전체 구축까지 가능합니다.</p>
+        <div class="service-tags">
+          <span t="tag-cashflow">캐시플로우</span>
+          <span t="tag-erp">모듈형 ERP</span>
+          <span t="tag-approval">전자결재</span>
+        </div>
+        <a href="https://hipus.ai" target="_blank" class="service-link" t="link-more">자세히 보기 →</a>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-bar teal"></div>
+        <div class="service-icon">🤖</div>
+        <div class="service-name">miniERP.ai</div>
+        <p class="service-desc" t="minierp-desc">회계법인이 자기 브랜드로 공급하는 AI 기반 경량 ERP. AI가 원천세·부가세 신고서를 자동 생성하고, 회계법인의 기장 역량을 확장합니다.</p>
+        <div class="service-tags">
+          <span class="teal" t="tag-wl">화이트라벨</span>
+          <span class="teal" t="tag-ai-tax">AI 자동 신고</span>
+          <span class="teal">SaaS</span>
+        </div>
+        <a href="https://minierp.ai" target="_blank" class="service-link" t="link-more">자세히 보기 →</a>
+      </div>
+
+    </div>
+    <div style="margin-top:28px; text-align:center;">
+      <a href="https://digo.kr" target="_blank"
+         style="display:inline-flex; align-items:center; gap:8px; font-size:0.88rem; font-weight:600; color:var(--text-sec); padding:10px 20px; border:1.5px solid var(--border); border-radius:9px; transition:all 0.2s;"
+         onmouseover="this.style.borderColor='var(--blue)'; this.style.color='var(--blue)'"
+         onmouseout="this.style.borderColor='var(--border)'; this.style.color='var(--text-sec)'">
+        <span t="catalog-link">📋 파트너용 제품 카탈로그 보기 (digo.kr)</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about-bg" id="about">
+  <div class="section-inner">
+    <div class="section-label" t="about-label">About Us</div>
+    <h2 class="section-title" t="about-title">링키솔루션</h2>
+    <p class="section-desc" t="about-desc">사람은 일하는 존재입니다. 그 사람들이 모여 조직이 되고, 회사가 됩니다. 링키솔루션은 한 사람 한 사람이, 나아가 기업이 AI와 함께 더 편하게 일(Doo)할 수 있는 환경을 만들어 갑니다.</p>
+    <div class="about-entities">
+      <div class="entity-card">
+        <div class="entity-flag">🇰🇷</div>
+        <div class="entity-name" t="kr-name">주식회사 링키솔루션</div>
+        <div class="entity-eng">Linkee Solution Co., Ltd.</div>
+        <div class="entity-info">
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-ceo">대표</span>
+            <span class="entity-row-val">이상목 (Sang-Mok Lee)</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-est">설립</span>
+            <span class="entity-row-val" t="kr-est">2025년 6월</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-addr">주소</span>
+            <span class="entity-row-val" t="kr-addr">서울특별시 구로구 디지털로<br>에이스 테크노타워 1차 903호</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-tel">전화</span>
+            <span class="entity-row-val">1644-5154</span>
+          </div>
+        </div>
+        <div class="entity-mission" t="kr-mission">AI 솔루션 개발, 공급, 교육을 통해 한국 중소·중견기업과 대기업의 AI 전환을 이끕니다.</div>
+      </div>
+      <div class="entity-card">
+        <div class="entity-flag">🇺🇸</div>
+        <div class="entity-name">Linkee Solution LLC</div>
+        <div class="entity-eng">Incorporated in Delaware, USA</div>
+        <div class="entity-info">
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-ceo">대표</span>
+            <span class="entity-row-val">Sang-Mok Lee</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-est">설립</span>
+            <span class="entity-row-val">2026.04</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label" t="lbl-addr">주소</span>
+            <span class="entity-row-val">Delaware, United States</span>
+          </div>
+          <div class="entity-row">
+            <span class="entity-row-label">Focus</span>
+            <span class="entity-row-val" t="us-focus">myDoo 글로벌 런칭</span>
+          </div>
+        </div>
+        <div class="entity-mission" t="us-mission">myDoo의 글로벌 서비스와 미국 시장 런칭을 담당합니다. 글로벌 파트너십과 투자 유치의 창구입니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact" style="background:var(--navy);">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-label" style="color:#93C5FD;" t="contact-label">Contact</div>
+    <h2 class="section-title" style="color:white;" t="contact-title">함께 이야기해요</h2>
+    <p style="font-size:1.05rem; color:rgba(255,255,255,0.65); max-width:520px; margin:0 auto 36px; line-height:1.9;" t="contact-desc">제품 도입, 파트너십, 협업 제안, 투자 문의 —<br>어떤 주제든 편하게 연락 주세요.</p>
+    <a href="mailto:kocoredisk@gmail.com" class="btn-primary" style="font-size:1rem; padding:15px 36px;">kocoredisk@gmail.com</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-copy" t="footer-copy">
+      <div>주식회사 링키솔루션 · 대표이사 이상목 · 서울특별시 구로구 디지털로 에이스 테크노타워 1차 903호</div>
+      <div>© 2025 Linkee Solution. All rights reserved.</div>
+    </div>
+    <nav class="footer-links">
+      <a href="https://mydoo.ai" target="_blank">myDoo.ai</a>
+      <a href="https://hipus.ai" target="_blank">Hipus.ai</a>
+      <a href="https://minierp.ai" target="_blank">miniERP.ai</a>
+      <a href="https://digo.kr" target="_blank">digo.kr</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+const T = {
+  ko: {
+    'nav-about': '회사 소개', 'nav-services': '서비스', 'nav-vision': '비전', 'nav-contact': '연락처', 'nav-cta': '문의하기',
+    'hero-h1': 'AI로 일하는 방식의<br><em>표준을 제시합니다</em>',
+    'hero-sub': '세계인에게 가장 편리하고 합리적인,<br>마땅히 그렇게 일하는 방식을 제안합니다.',
+    'hero-btn1': '서비스 살펴보기', 'hero-btn2': '협업 문의',
+    'vision-label': 'Our Vision',
+    'vision-title': 'AI는 인간에게 점점 가까워지고 있습니다',
+    'vision-sub': '회중시계가 손목시계가 되고, 웨어러블이 되었듯이.<br>우리는 사람이 AI와 함께 일하는 환경을 만듭니다.',
+    'v1-title': '연결', 'v1-desc': '링키(Linkee)는 연결하는 존재입니다. 사람과 AI를, 일과 결과를 잇습니다.',
+    'v2-title': '기억', 'v2-desc': 'AI가 나의 맥락을 기억하고, 함께 일합니다.',
+    'v3-title': '환경', 'v3-desc': '인간이 보다 편하게 일(Doo)할 수 있는 환경을 구현해 갑니다.',
+    'about-label': 'About Us', 'about-title': '링키솔루션',
+    'about-desc': '사람은 일하는 존재입니다. 그 사람들이 모여 조직이 되고, 회사가 됩니다. 링키솔루션은 한 사람 한 사람이, 나아가 기업이 AI와 함께 더 편하게 일(Doo)할 수 있는 환경을 만들어 갑니다.',
+    'kr-name': '주식회사 링키솔루션', 'lbl-ceo': '대표', 'lbl-est': '설립', 'lbl-addr': '주소', 'lbl-tel': '전화', 'lbl-email': '이메일',
+    'kr-est': '2025년 6월',
+    'kr-addr': '서울특별시 구로구 디지털로<br>에이스 테크노타워 1차 903호',
+    'kr-mission': 'AI 솔루션 개발, 공급, 교육을 통해 한국 중소·중견기업과 대기업의 AI 전환을 이끕니다.',
+    'us-focus': 'myDoo 글로벌 런칭',
+    'us-mission': 'myDoo의 글로벌 서비스와 미국 시장 런칭을 담당합니다. 글로벌 파트너십과 투자 유치의 창구입니다.',
+    'svc-label': 'Our Services', 'svc-title': '링키솔루션이 만드는 것들',
+    'svc-desc': 'AI 워크스페이스부터 경영 데이터 AI까지 — 기업의 모든 업무 레이어를 커버합니다.',
+    'mydoo-desc': '일을 시작하면 AI가 맥락을 기억하고 함께 실행합니다. 쌓인 지식은 조직의 자산이 됩니다. AI를 가장 지혜롭게 쓰는 방법, 그 자체가 myDoo입니다.',
+    'tag-recall': '장기 기억', 'tag-brain': '지식 그래프',
+    'hipus-desc': '은행·카드·국세청 데이터로 현금흐름을 실시간 파악하는 AI 솔루션. 기존 회계시스템과 별개로 작동하며, 모듈 조합으로 ERP 전체 구축까지 가능합니다.',
+    'tag-cashflow': '캐시플로우', 'tag-erp': '모듈형 ERP', 'tag-approval': '전자결재',
+    'minierp-desc': '회계법인이 자기 브랜드로 공급하는 AI 기반 경량 ERP. AI가 원천세·부가세 신고서를 자동 생성하고, 회계법인의 기장 역량을 확장합니다.',
+    'tag-wl': '화이트라벨', 'tag-ai-tax': 'AI 자동 신고',
+    'link-more': '자세히 보기 →',
+    'catalog-link': '📋 파트너용 제품 카탈로그 보기 (digo.kr)',
+    'mydoo-bridge-label': '이것을 하나로 구현한 것',
+    'mydoo-bridge-title': '사람과 AI, <em style="font-style:normal; color:var(--indigo)">두 축의 협업</em>으로 일이 완성됩니다',
+    'mydoo-bridge-desc': 'AI를 가장 지혜롭게 활용하는 방법 — 지시하면 시작되고, 결과가 돌아옵니다. 모든 작업에 시작과 끝이 있고, 조직의 지식이 자산으로 남습니다. 이것이 <strong>myDoo</strong>로 일하는 방식입니다.',
+    'contact-label': 'Contact', 'contact-title': '함께 이야기해요',
+    'contact-desc': '제품 도입, 파트너십, 협업 제안, 투자 문의 — 어떤 주제든 편하게 연락 주세요.',
+    'kr-sub': '한국 법인 · Korea', 'us-sub': '미국 법인 · United States',
+    'cta-desc': '파트너십과 투자 문의를 환영합니다. 어떤 형태의 협업도 함께 논의할 준비가 되어 있습니다.',
+    'cta-btn': '이메일 보내기',
+    'footer-copy': '<div>주식회사 링키솔루션 · 대표이사 이상목 · 서울특별시 구로구 디지털로 에이스 테크노타워 1차 903호</div><div>© 2025 Linkee Solution. All rights reserved.</div>',
+  },
+  en: {
+    'nav-about': 'About', 'nav-services': 'Services', 'nav-vision': 'Vision', 'nav-contact': 'Contact', 'nav-cta': 'Get in Touch',
+    'hero-h1': 'We set the standard<br><em>for working with AI</em>',
+    'hero-sub': 'The most convenient and rational way to work with AI —<br>as it should be, for everyone in the world.',
+    'hero-btn1': 'Explore Services', 'hero-btn2': 'Partner With Us',
+    'vision-label': 'Our Vision',
+    'vision-title': 'AI is getting closer to people',
+    'vision-sub': 'From pocket watch to wristwatch to wearable.<br>We build the environment where people work with AI.',
+    'v1-title': 'Connect', 'v1-desc': 'Linkee means "one who connects." We connect people and AI, work and outcomes.',
+    'v2-title': 'Memory', 'v2-desc': 'AI remembers your context and works alongside you.',
+    'v3-title': 'Environment', 'v3-desc': 'We build the environment where people can do their work (Doo) more comfortably with AI.',
+    'about-label': 'About Us', 'about-title': 'Linkee Solution',
+    'about-desc': 'We don\'t just add AI to existing workflows. We redesign how organizations think, work, and create — with AI at the center.',
+    'kr-name': 'Linkee Solution Co., Ltd.', 'lbl-ceo': 'CEO', 'lbl-est': 'Founded', 'lbl-addr': 'Address', 'lbl-tel': 'Phone', 'lbl-email': 'Email',
+    'kr-est': 'June 2025',
+    'kr-addr': 'Ace Techno Tower 1, 903<br>Guro-gu, Seoul, South Korea',
+    'kr-mission': 'Driving AI transformation across Korean SMEs and enterprises through product development, deployment, and education.',
+    'us-focus': 'Global launch of myDoo',
+    'us-mission': 'Launching myDoo simultaneously in the US market. Growing Korea\'s proven AI workspace into a global standard.',
+    'svc-label': 'Our Services', 'svc-title': 'What We Build',
+    'svc-desc': 'From AI workspace to business intelligence AI — covering every layer of enterprise work.',
+    'mydoo-desc': 'Start the work — AI remembers the context and executes alongside you. The knowledge you build becomes a lasting organizational asset. The smartest way to work with AI, that\'s myDoo.',
+    'tag-recall': 'Long-term Memory', 'tag-brain': 'Knowledge Graph',
+    'hipus-desc': 'Real-time cash flow intelligence powered by bank, card, and tax authority data. Works alongside your existing accounting system, expandable into a full modular ERP.',
+    'tag-cashflow': 'Cash Flow', 'tag-erp': 'Modular ERP', 'tag-approval': 'Approvals',
+    'minierp-desc': 'A white-label AI ERP for accounting firms to deploy under their own brand. AI auto-generates tax filings and multiplies the capacity of each accountant.',
+    'tag-wl': 'White-label', 'tag-ai-tax': 'AI Tax Filing',
+    'link-more': 'Learn more →',
+    'catalog-link': '📋 Partner Catalog (digo.kr)',
+    'mydoo-bridge-label': 'All of this in one product',
+    'mydoo-bridge-title': 'Human and AI, <em style="font-style:normal; color:var(--indigo)">two axes</em> of collaboration',
+    'mydoo-bridge-desc': 'The smartest way to work with AI — you give direction, AI delivers. Every task has a clear start and finish. Your organization\'s knowledge becomes a lasting asset. This is how you work with <strong>myDoo</strong>.',
+    'contact-label': 'Contact', 'contact-title': 'Let\'s Talk',
+    'contact-desc': 'Product adoption, partnerships, collaboration, investment — reach out for any topic.',
+    'kr-sub': 'Korea Entity', 'us-sub': 'US Entity',
+    'cta-desc': 'We welcome partnership and investment inquiries. We\'re ready to discuss any form of collaboration.',
+    'cta-btn': 'Send an Email',
+    'footer-copy': '<div>Linkee Solution Co., Ltd. · CEO Sang-Mok Lee · Seoul, South Korea</div><div>© 2025 Linkee Solution. All rights reserved.</div>',
+  }
+};
+
+let currentLang = 'ko';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('html-root').lang = lang;
+  document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+  document.querySelectorAll('[t]').forEach(el => {
+    const key = el.getAttribute('t');
+    if (T[lang][key] !== undefined) {
+      el.innerHTML = T[lang][key];
+    }
+  });
+
+  // title & meta
+  document.title = lang === 'ko'
+    ? 'Linkee Solution — AI로 일하는 방식의 표준을 제시합니다'
+    : 'Linkee Solution — We set the standard for working with AI';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1주차 — AI가 코드를 짠다 · 바이브코딩 | AX First Step</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #E8611A;
+      --orange-light: #F28C28;
+      --dark: #111118;
+      --text: #1E1E2E;
+      --text-muted: #64748B;
+      --bg: #0F0F1A;
+      --surface: #1A1A2E;
+      --surface2: #222235;
+      --border: rgba(255,255,255,0.1);
+      --green: #68B82E;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #fff;
+    }
+
+    /* ===== SLIDE ENGINE ===== */
+    .deck {
+      width: 100%; height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--orange);
+      transition: width 0.3s ease;
+      z-index: 100;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 24px; right: 32px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.35);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* ===== WEEK BADGE ===== */
+    .week-badge {
+      position: fixed;
+      top: 20px; left: 32px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ===== COMMON SLIDE ELEMENTS ===== */
+    .slide-tag {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange-light);
+      margin-bottom: 20px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .slide h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      letter-spacing: -0.02em;
+    }
+
+    .slide h1 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    .slide h2 em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .slide p.lead {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      line-height: 1.8;
+      margin-top: 20px;
+      max-width: 680px;
+    }
+
+    .sub-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-top: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== BIG NUMBER ===== */
+    .big-stat {
+      display: flex;
+      gap: 48px;
+      margin-top: 40px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: var(--orange);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 8px;
+    }
+
+    /* ===== TWO COL ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+    }
+
+    /* ===== LIST SLIDE ===== */
+    .point-list {
+      list-style: none;
+      margin-top: 32px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .point-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .point-list li:last-child { border-bottom: none; }
+
+    .point-num {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(232,97,26,0.15);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ===== HIGHLIGHT BOX ===== */
+    .hl-box {
+      background: linear-gradient(135deg, rgba(232,97,26,0.15), rgba(242,140,40,0.08));
+      border: 1px solid rgba(232,97,26,0.3);
+      border-radius: 20px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 760px;
+      margin-top: 32px;
+    }
+
+    .hl-box .hl-main {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .hl-box .hl-main em {
+      color: var(--orange);
+      font-style: normal;
+    }
+
+    .hl-box .hl-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 16px;
+      line-height: 1.8;
+    }
+
+    /* ===== LADDER ===== */
+    .ladder {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-top: 36px;
+    }
+
+    .ladder-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .ladder-step.active-step {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+    }
+
+    .ladder-arrow {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.25);
+      padding: 0 12px;
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: #0D0D1A;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 28px 36px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      max-width: 680px;
+      margin-top: 28px;
+      width: 100%;
+    }
+
+    .code-line { display: block; }
+    .code-prompt { color: rgba(255,255,255,0.25); margin-right: 8px; }
+    .code-human { color: #68B82E; }
+    .code-ai { color: var(--orange-light); }
+    .code-comment { color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+
+    /* ===== COVER SLIDE ===== */
+    .cover-bg {
+      background: radial-gradient(ellipse at 30% 50%, rgba(232,97,26,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(104,184,46,0.08) 0%, transparent 50%);
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      background: linear-gradient(135deg, #1A1A2E 0%, #111118 100%);
+    }
+
+    .section-divider .big-label {
+      font-size: clamp(4rem, 10vw, 8rem);
+      font-weight: 900;
+      font-family: 'Inter', sans-serif;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ===== TIME BADGE ===== */
+    .time-badges {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .time-badge {
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .time-badge.lecture {
+      background: rgba(232,97,26,0.2);
+      color: var(--orange-light);
+      border: 1px solid rgba(232,97,26,0.3);
+    }
+    .time-badge.practice {
+      background: rgba(104,184,46,0.15);
+      color: #8ED452;
+      border: 1px solid rgba(104,184,46,0.25);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-box {
+      max-width: 700px;
+      text-align: center;
+      margin-top: 32px;
+    }
+    .quote-mark {
+      font-size: 4rem;
+      color: var(--orange);
+      line-height: 0.8;
+      font-family: 'Inter', sans-serif;
+      opacity: 0.4;
+    }
+    .quote-text {
+      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+      font-weight: 700;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+    .quote-source {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 16px;
+    }
+
+    /* ===== HOMEWORK ===== */
+    .hw-list {
+      list-style: none;
+      max-width: 640px;
+      width: 100%;
+      margin-top: 32px;
+    }
+    .hw-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .hw-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .hw-text strong {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .hw-text span {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 700px) {
+      .slide { padding: 40px 28px; }
+      .two-col { grid-template-columns: 1fr; gap: 16px; }
+      .ladder { flex-direction: column; gap: 8px; }
+      .ladder-arrow { transform: rotate(90deg); }
+      .big-stat { gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="week-badge">AX First Step · 1주차</div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="nav-hint">← → 키 또는 클릭으로 이동</div>
+
+<div class="deck" id="deck">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide cover-bg active" data-slide="1">
+    <div class="slide-tag">AX First Step · Week 1</div>
+    <h1>AI가 코드를 짠다<br><em>바이브코딩</em></h1>
+    <p class="lead">코딩을 배우는 게 아닙니다.<br>AI와 대화해서 서비스를 만드는 법을 배웁니다.</p>
+    <div class="time-badges">
+      <span class="time-badge lecture">강의 2시간</span>
+      <span class="time-badge practice">실습 3시간</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 왜 지금인가 -->
+  <div class="slide" data-slide="2">
+    <div class="slide-tag">Why Now</div>
+    <h2>왜 지금이 <em>기회</em>인가</h2>
+    <div class="big-stat">
+      <div class="stat-item">
+        <div class="stat-num">2022</div>
+        <div class="stat-label">ChatGPT 등장</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2023</div>
+        <div class="stat-label">코파일럿 대중화</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2024→</div>
+        <div class="stat-label">에이전트 시대</div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">개발자가 코드를 짜는 시대에서<br><strong style="color:#fff;">누구나 AI에게 시키는 시대</strong>로 넘어왔습니다.</p>
+  </div>
+
+  <!-- SLIDE 3: 아직도? -->
+  <div class="slide" data-slide="3">
+    <div class="hl-box" style="max-width:800px;">
+      <div class="hl-main">
+        "코딩을 못하면<br>디지털 전환은 남의 일이다"
+      </div>
+      <div class="hl-sub" style="margin-top:20px; font-size:1.1rem; color:rgba(255,255,255,0.35);">— 2년 전 상식</div>
+    </div>
+    <div style="margin-top:40px; font-size:2.5rem; color:var(--orange);">✕</div>
+    <div class="hl-box" style="margin-top:20px; background:linear-gradient(135deg,rgba(104,184,46,0.15),rgba(104,184,46,0.06)); border-color:rgba(104,184,46,0.3);">
+      <div class="hl-main">
+        AI에게 말로 설명하면<br><em>AI가 코드를 짜줍니다</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: 바이브코딩이란 -->
+  <div class="slide" data-slide="4">
+    <div class="slide-tag">Vibe Coding</div>
+    <h2><em>바이브코딩</em>이란</h2>
+    <div class="two-col" style="margin-top:36px;">
+      <div class="card">
+        <div class="card-icon">❌</div>
+        <h3>기존 방식</h3>
+        <p>Python, JavaScript 문법을 공부하고, 코드를 직접 작성한다. 에러가 나면 Stack Overflow를 뒤진다.</p>
+      </div>
+      <div class="card" style="border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">✅</div>
+        <h3>바이브코딩</h3>
+        <p>원하는 것을 말로 설명한다. AI가 코드를 짜고, 에러도 스스로 고친다. 나는 방향만 잡는다.</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px;">코딩 실력이 필요한 게 아닙니다.<br><strong style="color:#fff;">내가 원하는 걸 명확히 설명하는 능력</strong>이 필요합니다.</p>
+  </div>
+
+  <!-- SLIDE 5: 대화 예시 -->
+  <div class="slide" data-slide="5">
+    <div class="slide-tag">실제 대화 예시</div>
+    <h2>이렇게 <em>대화</em>합니다</h2>
+    <div class="code-block">
+      <span class="code-line"><span class="code-prompt">나:</span> <span class="code-human">고객이 폼을 작성하면 이메일로 알림이 오는</span></span>
+      <span class="code-line"><span class="code-human">     간단한 문의 페이지 만들어줘</span></span>
+      <span class="code-line" style="margin-top:8px;"><span class="code-prompt">AI:</span> <span class="code-ai">HTML 파일과 이메일 발송 코드를 만들겠습니다.</span></span>
+      <span class="code-line"><span class="code-ai">    어떤 필드가 필요한가요? (이름, 연락처, 내용?)</span></span>
+      <span class="code-line" style="margin-top:8px;"><span class="code-prompt">나:</span> <span class="code-human">회사명, 담당자, 전화번호, 문의내용</span></span>
+      <span class="code-line" style="margin-top:8px;"><span class="code-prompt">AI:</span> <span class="code-ai">완성했습니다. 파일을 저장했으니 확인해보세요.</span></span>
+      <span class="code-line"><span class="code-comment">     → 완성된 HTML + 이메일 발송 코드 생성됨</span></span>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: 그러면 환경이란? -->
+  <div class="slide section-divider" data-slide="6">
+    <div class="big-label">ENV</div>
+    <div class="slide-tag" style="position:relative; z-index:1;">환경 설정</div>
+    <h2 style="position:relative; z-index:1;">AI가 일하려면<br><em>작업대</em>가 필요합니다</h2>
+    <p class="lead" style="position:relative; z-index:1;">Node.js와 Claude Code — 이 두 가지가 핵심입니다.</p>
+  </div>
+
+  <!-- SLIDE 7: Node와 Claude Code -->
+  <div class="slide" data-slide="7">
+    <div class="slide-tag">핵심 도구 2가지</div>
+    <div class="two-col" style="max-width:860px; margin-top:0;">
+      <div class="card" style="padding:32px;">
+        <div class="card-icon">⚙️</div>
+        <h3>Node.js</h3>
+        <p style="font-size:0.95rem; line-height:1.75;">자바스크립트를 컴퓨터에서 실행하는 엔진. AI가 만든 코드를 실제로 돌리는 환경.</p>
+        <div style="margin-top:16px; font-size:0.8rem; color:rgba(255,255,255,0.3); border-top:1px solid var(--border); padding-top:14px;">
+          → 설치만 하면 됩니다. 사용법은 몰라도 됩니다.
+        </div>
+      </div>
+      <div class="card" style="padding:32px; border-color:rgba(232,97,26,0.4); background:rgba(232,97,26,0.06);">
+        <div class="card-icon">🤖</div>
+        <h3>Claude Code</h3>
+        <p style="font-size:0.95rem; line-height:1.75;">Anthropic의 AI 코딩 에이전트. 말로 지시하면 파일을 만들고, 고치고, 실행까지 합니다.</p>
+        <div style="margin-top:16px; font-size:0.8rem; color:rgba(255,255,255,0.3); border-top:1px solid var(--border); padding-top:14px;">
+          → 이게 바이브코딩의 핵심 도구입니다.
+        </div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:28px; font-size:0.95rem;">비유하자면: Node는 주방, Claude Code는 요리사.</p>
+  </div>
+
+  <!-- SLIDE 8: 사이트 하나가 만들어지는 과정 -->
+  <div class="slide" data-slide="8">
+    <div class="slide-tag">Live Demo</div>
+    <h2>사이트 하나가<br><em>만들어지는 과정</em></h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">01</span>
+        <span>Claude Code를 켠다 — 터미널에서 <code style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;font-family:monospace;">claude</code> 입력</span>
+      </li>
+      <li>
+        <span class="point-num">02</span>
+        <span>"내 서비스 소개 페이지 만들어줘. 회사명, 서비스 설명, 연락처 섹션 포함해줘"</span>
+      </li>
+      <li>
+        <span class="point-num">03</span>
+        <span>AI가 HTML 파일 작성 → 브라우저에서 바로 확인</span>
+      </li>
+      <li>
+        <span class="point-num">04</span>
+        <span>"버튼 색깔 오렌지로 바꿔줘" → 즉시 수정</span>
+      </li>
+      <li>
+        <span class="point-num">05</span>
+        <span>30분 만에 실제 웹사이트 완성</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- SLIDE 9: 4주 사다리 -->
+  <div class="slide" data-slide="9">
+    <div class="slide-tag">4주 전체 흐름</div>
+    <h2>이 강의를 관통하는<br><em>하나의 논리</em></h2>
+    <div class="ladder" style="margin-top:44px;">
+      <div class="ladder-step active-step">📄 문서</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">🌐 HTML</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">⚙️ 시스템</div>
+      <div class="ladder-arrow">→</div>
+      <div class="ladder-step">☁️ SaaS</div>
+    </div>
+    <p class="lead" style="margin-top:32px;">
+      오늘은 첫 번째 계단 — <strong style="color:var(--orange);">문서를 코드로 만드는 경험</strong><br>
+      4주가 끝나면 이 사다리 전체가 보입니다.
+    </p>
+  </div>
+
+  <!-- SLIDE 10: 실습 안내 -->
+  <div class="slide" data-slide="10">
+    <div class="slide-tag">실습 (3시간)</div>
+    <h2 style="font-size:clamp(1.6rem,3vw,2.4rem);">오늘 실습에서<br><em>직접 해볼 것</em></h2>
+    <ul class="point-list">
+      <li>
+        <span class="point-num">실습 1</span>
+        <span><strong style="color:#fff;">Claude Code 설치</strong> — Node.js 설치 → Claude Code 설치 → 인증</span>
+      </li>
+      <li>
+        <span class="point-num">실습 2</span>
+        <span><strong style="color:#fff;">첫 화면 만들기</strong> — "내 이름과 직업이 표시되는 소개 페이지"를 AI에게 만들어 달라고 해보기</span>
+      </li>
+      <li>
+        <span class="point-num">실습 3</span>
+        <span><strong style="color:#fff;">수정 대화</strong> — 색상, 내용, 레이아웃 바꿔가며 AI와 3번 이상 대화하기</span>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:20px;">막히면 손 들어요 — 강사가 바로 붙겠습니다</p>
+  </div>
+
+  <!-- SLIDE 11: 숙제 -->
+  <div class="slide" data-slide="11">
+    <div class="slide-tag">이번 주 숙제</div>
+    <h2>다음 주까지<br><em>해올 것</em></h2>
+    <ul class="hw-list">
+      <li>
+        <span class="hw-icon">📝</span>
+        <div class="hw-text">
+          <strong>맥플로 초안 작성</strong>
+          <span>"내가 AI로 만들고 싶은 서비스"를 A4 반 페이지 분량으로 정리<br>— 어떤 문제를 해결하는가? 누가 쓰는가? 핵심 기능은?</span>
+        </div>
+      </li>
+      <li>
+        <span class="hw-icon">🎙️</span>
+        <div class="hw-text">
+          <strong>Claude Code에게 인터뷰 당해보기</strong>
+          <span>내 아이디어를 Claude Code에게 설명하고, AI가 되물어보는 질문에 대답하면서 아이디어를 구체화해보기</span>
+        </div>
+      </li>
+    </ul>
+    <p class="sub-label" style="margin-top:16px;">2주차에 맥플로 공유하고 함께 발전시킵니다</p>
+  </div>
+
+  <!-- SLIDE 12: 마무리 -->
+  <div class="slide cover-bg" data-slide="12">
+    <div class="quote-box">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">
+        코드를 짜는 게 아니라<br>
+        <em style="color:var(--orange); font-style:normal;">아이디어를 말로 설명하는 것</em>이<br>
+        이제 가장 중요한 능력입니다.
+      </div>
+      <div class="quote-source">— AX First Step · 1주차 핵심</div>
+    </div>
+    <div style="margin-top:48px; display:flex; gap:16px; align-items:center;">
+      <a href="week2.html" style="background:var(--orange); color:#fff; padding:14px 32px; border-radius:100px; font-weight:700; text-decoration:none; font-size:0.95rem;">
+        2주차 강의 보기 →
+      </a>
+      <a href="../axfirststone.html" style="color:rgba(255,255,255,0.4); font-size:0.9rem; text-decoration:none;">
+        수강 안내 페이지
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  function updateSlide(next) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('prev');
+    setTimeout(() => slides[current].classList.remove('prev'), 400);
+    current = Math.max(0, Math.min(next, total - 1));
+    slides[current].classList.add('active');
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      if (current < total - 1) updateSlide(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.tagName === 'A') return;
+    const x = e.clientX;
+    if (x > window.innerWidth / 2) {
+      if (current < total - 1) updateSlide(current + 1);
+    } else {
+      if (current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Touch
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0 && current < total - 1) updateSlide(current + 1);
+      if (dx < 0 && current > 0) updateSlide(current - 1);
+    }
+  });
+
+  // Init
+  updateSlide(0);
+</script>
+</body>
+</html>

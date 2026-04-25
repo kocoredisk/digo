@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AX First Step — 강의 교안</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #E8611A;
+      --bg: #0F0F1A;
+      --surface: #1A1A2E;
+      --border: rgba(255,255,255,0.08);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+    .label {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 16px;
+      font-family: 'Inter', sans-serif;
+    }
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    h1 em { color: var(--orange); font-style: normal; }
+    .sub {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      margin-bottom: 52px;
+    }
+    .weeks {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 720px;
+    }
+    .week-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      text-decoration: none;
+      color: #fff;
+      transition: border-color 0.2s, transform 0.2s;
+      display: block;
+    }
+    .week-card:hover {
+      border-color: rgba(232,97,26,0.5);
+      transform: translateY(-2px);
+    }
+    .week-num {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--orange);
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 10px;
+    }
+    .week-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .week-meta {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+      display: flex;
+      gap: 10px;
+    }
+    .badge {
+      border-radius: 100px;
+      padding: 3px 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .ladder {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.25);
+    }
+    .ladder span { color: rgba(255,255,255,0.45); }
+    .ladder em { color: var(--orange); font-style: normal; }
+    @media (max-width: 540px) {
+      .weeks { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="label">AX First Step · 강의 교안</div>
+  <h1>4주 완성<br><em>발표자료</em></h1>
+  <p class="sub">경영지도사 · 회계사 · 세무사 · 컨설턴트 대상 / 매주 5시간</p>
+
+  <div class="weeks">
+    <a href="week1.html" class="week-card">
+      <div class="week-num">Week 1</div>
+      <div class="week-title">AI가 코드를 짠다<br>바이브코딩</div>
+      <div class="week-meta">
+        <span class="badge">강의 2h</span>
+        <span class="badge">실습 3h</span>
+      </div>
+    </a>
+    <a href="week2.html" class="week-card">
+      <div class="week-num">Week 2</div>
+      <div class="week-title">고객의 회사를<br>읽는 법</div>
+      <div class="week-meta">
+        <span class="badge">강의 3h</span>
+        <span class="badge">실습 2h</span>
+      </div>
+    </a>
+    <a href="week3.html" class="week-card">
+      <div class="week-num">Week 3</div>
+      <div class="week-title">브라우저로 내 서비스에<br>접속하자</div>
+      <div class="week-meta">
+        <span class="badge">강의 2h</span>
+        <span class="badge">실습 3h</span>
+      </div>
+    </a>
+    <a href="week4.html" class="week-card">
+      <div class="week-num">Week 4</div>
+      <div class="week-title">고객을 AX로<br>안내하는 노하우</div>
+      <div class="week-meta">
+        <span class="badge">강의 1h</span>
+        <span class="badge">발표 · 토론 4h</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="ladder">
+    <span>📄 문서</span> → <span>🌐 HTML</span> → <span>⚙️ 시스템</span> → <em>☁️ SaaS</em>
+  </div>
+</body>
+</html>

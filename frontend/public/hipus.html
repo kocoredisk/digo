@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hipus — digo · 링키솔루션</title>
+  <meta name="description" content="은행·카드·국세청 데이터로 현금흐름을 실시간 파악하는 AI 솔루션. 기존 회계시스템과 공존하며 모듈형 ERP 확장까지.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo-wrap">
+      <img src="img/digo-logo.svg" alt="digo" class="logo-img">
+    </a>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="메뉴">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="site-nav" id="siteNav">
+      <a href="hipus.html" class="active">Hipus.ai</a>
+      <a href="minierp.html">miniERP.ai</a>
+      <a href="mydoo.html">myDoo.ai</a>
+      <a href="axfirststone.html">AX First Step 특별강좌</a>
+      <button id="loginBtn" onclick="handleGoogleLogin()" style="background:#E8611A;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.9rem;">로그인</button>
+    </nav>
+  </div>
+</header>
+
+<script>
+function handleGoogleLogin() {
+  var w=500,h=600,left=window.screenX+(window.outerWidth-w)/2,top=window.screenY+(window.outerHeight-h)/2;
+  var popup=window.open('/api/auth/google-direct','google-login','width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes');
+  if(!popup){alert('팝업이 차단되었습니다.');return;}
+  window.addEventListener('message',function handler(e){
+    if(!e.data||e.data.source!=='digo-oauth')return;
+    window.removeEventListener('message',handler);
+    if(e.data.type==='GOOGLE_AUTH_SUCCESS')window.location.href='/main';
+    else if(e.data.type==='GOOGLE_AUTH_FAIL')alert(e.data.error||'로그인 실패');
+  });
+}
+</script>
+
+<!-- HERO -->
+<div class="product-hero">
+  <div class="product-hero-inner">
+    <div class="badge">Hipus.ai</div>
+    <h1>Hipus</h1>
+    <p class="tagline">기존 시스템 그대로, 현금흐름만 더합니다.<br>은행·카드·국세청 데이터로 경영진이 지금 당장 볼 수 있는 현금흐름.</p>
+    <div class="meta">
+      <span>📌 타겟: 중소·중견기업</span>
+      <span>⚙️ 납품형 SI + 구독 가능</span>
+      <span>🔌 기존 회계시스템과 공존</span>
+    </div>
+  </div>
+</div>
+
+<!-- 핵심 포지션 -->
+<section>
+  <div class="container">
+    <div class="section-label">Core Position</div>
+    <h2 class="section-title">이 솔루션이 필요한 이유</h2>
+    <div class="divider"></div>
+    <div class="grid-2" style="gap:32px; align-items:start;">
+      <div>
+        <div class="script-box">
+          <p>회사의 회계시스템은 발생주의입니다. 재무팀도 현금이 지금 어디 있는지 바로 알기 어렵습니다. 하이퍼스는 은행, 카드, 국세청 데이터를 직접 연결해서 현금흐름을 실시간으로 보여줍니다.</p>
+        </div>
+        <div style="margin-top:20px; padding:20px; background:var(--orange-pale); border-radius:var(--radius); border-left:4px solid var(--orange);">
+          <div style="font-weight:800; font-size:1rem; margin-bottom:8px; color:var(--orange-dark);">핵심 메시지</div>
+          <div style="font-size:0.9rem; line-height:1.8; color:var(--text);">기존 ERP·회계시스템은 그대로 두세요.<br>현금흐름만 하이퍼스가 맡습니다.</div>
+        </div>
+      </div>
+      <div>
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="fi-icon">🏦</div>
+            <div><strong>은행·카드·국세청 연동</strong><br>외부 데이터를 직접 연결해 현금주의 기준으로 실시간 집계</div>
+          </li>
+          <li class="feature-item">
+            <div class="fi-icon">🤖</div>
+            <div><strong>AI 자동 정리·관리</strong><br>거래 분류, 이상 패턴 감지, 경영 리포트 자동 생성</div>
+          </li>
+          <li class="feature-item">
+            <div class="fi-icon">📋</div>
+            <div><strong>전자결재 (지출결의)</strong><br>직원 카드 매출전표를 지출결의로 자동 취합, 재무팀 처리 간소화</div>
+          </li>
+          <li class="feature-item">
+            <div class="fi-icon">📅</div>
+            <div><strong>연차관리·신청</strong><br>요즘 가장 핫한 기능. 연차 신청·승인을 모바일에서 처리</div>
+          </li>
+          <li class="feature-item">
+            <div class="fi-icon">🧩</div>
+            <div><strong>모듈형 ERP 확장</strong><br>코어 솔루션에 다양한 모듈 조합 → 전체 ERP 구축까지 가능</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 이런 고객에게 -->
+<section class="alt">
+  <div class="container">
+    <div class="section-label">Target Customer</div>
+    <h2 class="section-title">이런 고객에게 파세요</h2>
+    <div class="divider"></div>
+    <div class="grid-3" style="margin-top:0;">
+      <div class="card card-top-accent">
+        <div style="font-size:28px; margin-bottom:12px;">🏢</div>
+        <div style="font-weight:800; font-size:1rem; margin-bottom:8px;">기존 회계시스템 있는 기업</div>
+        <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7;">ERP, 그룹웨어를 쓰고 있지만 현금흐름을 실시간으로 못 보는 중소~중견기업. "교체 없이 현금흐름만 추가"로 설득.</div>
+      </div>
+      <div class="card card-top-accent">
+        <div style="font-size:28px; margin-bottom:12px;">👔</div>
+        <div style="font-weight:800; font-size:1rem; margin-bottom:8px;">경영진이 지출 파악을 원하는 곳</div>
+        <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7;">직원들 지출이 어디서 얼마나 나가는지 경영진이 바로바로 알고 싶은 곳. 전자결재 + 현황 대시보드.</div>
+      </div>
+      <div class="card card-top-accent">
+        <div style="font-size:28px; margin-bottom:12px;">📊</div>
+        <div style="font-weight:800; font-size:1rem; margin-bottom:8px;">재무팀이 현금주의 리포트 필요한 곳</div>
+        <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7;">발생주의 회계 외에 현금주의 현황도 보고 싶은 재무팀. CFO·임원 보고용 현금흐름 리포트 즉시 생성.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 영업 스크립트 -->
+<section>
+  <div class="container-sm">
+    <div class="section-label">Sales Script</div>
+    <h2 class="section-title">이렇게 말하세요</h2>
+    <div class="divider"></div>
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="script-box">
+        <p>"지금 쓰시는 회계 프로그램 바꾸실 필요 없습니다. 하이퍼스는 그 옆에 붙어서, 은행이랑 카드, 국세청 데이터를 실시간으로 가져와 현금흐름을 보여주는 겁니다."</p>
+      </div>
+      <div class="script-box">
+        <p>"지금 대표님이 직원들 카드 쓴 거 실시간으로 알 수 있으세요? 하이퍼스 쓰시면 직원이 카드 긁는 순간 바로 올라옵니다. 결재도 모바일에서 바로 처리하시고요."</p>
+      </div>
+      <div class="script-box">
+        <p>"연차 관리 지금 어떻게 하세요? 엑셀이요? 하이퍼스에 연차 모듈 들어가 있습니다. 직원들 앱에서 신청하고, 결재선 따라 승인되고, 이게 다 연동됩니다."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="alt">
+  <div class="container-sm">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-title">자주 묻는 질문</h2>
+    <div class="divider"></div>
+    <ul class="faq-list">
+      <li class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          기존 ERP를 교체해야 하나요?
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-a">교체하지 않아도 됩니다. 하이퍼스는 기존 회계·ERP 시스템과 별개로 작동합니다. 현금흐름 관리가 필요한 부분에만 추가로 도입하시면 됩니다.</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          어떤 은행·카드사와 연동되나요?
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-a">국내 주요 은행 및 카드사와 연동됩니다. 국세청 홈택스 데이터도 연결됩니다. 구체적인 연동 목록은 별도 문의 주시면 안내해드립니다.</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          몇 명 규모 회사부터 도입할 수 있나요?
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-a">직원 10명 이상의 중소기업부터 수백 명 규모의 중견기업까지 적용 가능합니다. 모듈 구성을 회사 규모에 맞게 조정합니다.</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          도입 방식은 어떻게 되나요?
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-a">SI 납품형(온프레미스 또는 프라이빗 클라우드)과 SaaS 구독형 모두 가능합니다. 고객사 상황에 맞는 방식으로 제안합니다.</div>
+      </li>
+      <li class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          ERP 전체 구축도 가능한가요?
+          <span class="arrow">▼</span>
+        </div>
+        <div class="faq-a">하이퍼스 코어 솔루션에 다양한 모듈을 조합하면 ERP 전체를 구축할 수 있습니다. 현금흐름 모듈부터 시작해서 단계별로 확장하는 방식으로 많이 진행합니다.</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section no-print">
+  <div class="container-sm">
+    <h2>하이퍼스 AX 도입 문의</h2>
+    <p>상세 제안서 및 데모 요청은 아래로 연락해 주세요.</p>
+    <div class="btn-group" style="justify-content:center;">
+      <a href="mailto:kocoredisk@gmail.com?subject=하이퍼스 AX 문의" class="btn btn-white">✉ 이메일 문의</a>
+      <a href="tel:16445154" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5);">📞 1644-5154</a>
+      <button onclick="window.print()" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5);">🖨 PDF 저장</button>
+    </div>
+    <div class="contact-info">
+      <span>kocoredisk@gmail.com</span>
+      <span>주식회사 링키솔루션</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <a href="lecture/" target="_blank" title="강의 교안"><img src="img/digo-logo.svg" alt="digo" class="logo-img footer-logo-img"></a>
+      <div class="footer-info" style="margin-top:8px;">
+        주식회사 링키솔루션 · 1644-5154 · kocoredisk@gmail.com
+      </div>
+    </div>
+    <nav class="footer-links">
+      <a href="index.html">홈</a>
+      <a href="minierp.html">미니이알피</a>
+      <a href="mydoo.html">마이두</a>
+      <a href="axfirststone.html">AX First Step 특별강좌</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+function toggleNav() {
+  document.getElementById('siteNav').classList.toggle('open');
+}
+function toggleFaq(el) {
+  el.parentElement.classList.toggle('open');
+}
+</script>
+</body>
+</html>

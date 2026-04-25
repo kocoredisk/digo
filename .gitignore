@@ -5,6 +5,17 @@ zx_KingFolder/
 .docuking/
 CLAUDE.md
 
+# Node
+node_modules/
+.next/
+dist/
+*.log
+
+# Env
+.env
+.env.local
+.env*.local
+
 # OS
 .DS_Store
 Thumbs.db
@@ -20,3 +31,9 @@ Thumbs.db
 
 # 킹폴더 (DocuKing 동기화 대상 — 커밋 금지)
 zy_Coworker_*/
+
+# 두폴더 (마이두 동기화 대상 — 커밋 금지)
+zx_DooFolder/
+
+
+zx_KingFolder.zip
